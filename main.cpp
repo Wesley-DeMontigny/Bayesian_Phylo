@@ -5,7 +5,8 @@
 #include "Msg.hpp"
 #include "Tree.hpp"
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[]) {
+
     RandomVariable& rv = RandomVariable::randomVariableInstance();
 
     Tree myTree(&rv, 10);
