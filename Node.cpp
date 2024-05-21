@@ -1,3 +1,3 @@
 #include "Node.hpp"
 
-Node::Node() : index(0), ancestor(nullptr), name(""), isTip(false) {}
+Node::Node() : index(0), ancestor(nullptr), name(""), isTip(false), offset(0) {}

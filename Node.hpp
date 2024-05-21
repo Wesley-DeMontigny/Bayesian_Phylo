@@ -12,6 +12,8 @@ class Node{
         void addNeighbor(Node* n) {neighbors.insert(n);}
         void removeNeighbor(Node* n) {neighbors.erase(n);}
         void removeAllNeighbors() {neighbors.clear();}
+        int getOffset(){return offset;}
+        void setOffset(int o){offset = o;}
         int getIndex() {return index;}
         void setIndex(int i) {index = i;}
         bool getIsTip() {return isTip;}
@@ -24,6 +26,7 @@ class Node{
         int index;
         bool isTip;
         std::string name;
+        int offset;
 };
 
 #endif
