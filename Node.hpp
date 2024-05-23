@@ -6,19 +6,19 @@
 class Node{
     public:
         Node();
-        Node* getAncestor() {return ancestor;}
+        Node* getAncestor() const {return ancestor;}
         void setAncestor(Node* a) {ancestor = a;}
         std::set<Node*>& getNeighbors() {return neighbors;}
         void addNeighbor(Node* n) {neighbors.insert(n);}
         void removeNeighbor(Node* n) {neighbors.erase(n);}
         void removeAllNeighbors() {neighbors.clear();}
-        int getOffset(){return offset;}
+        int getOffset() const {return offset;} 
         void setOffset(int o){offset = o;}
-        int getIndex() {return index;}
+        int getIndex() const {return index;}
         void setIndex(int i) {index = i;}
-        bool getIsTip() {return isTip;}
+        bool getIsTip() const {return isTip;}
         void setIsTip(bool t) {isTip = t;}
-        std::string getName() {return name;}
+        std::string getName() const {return name;}
         void setName(std::string s) {name = s;}
     private:
         Node* ancestor;

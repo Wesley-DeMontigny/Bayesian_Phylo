@@ -4,6 +4,12 @@
 #include "Msg.hpp"
 #include <iostream>
 
+/*
+=======================================================================
+                        BASIC TREE FUNCTIONALITY
+=======================================================================
+*/
+
 Tree::Tree(RandomVariable* rng, int nt) : numTaxa(nt) {
 
     // initialize an unrooted three-taxon tree, (0,1,2)
@@ -86,8 +92,14 @@ void Tree::deleteAllNodes(){
     nodes.clear();
 }
 
+Tree& Tree::operator=(const Tree& rhs){
+    if(this == &rhs)
+        return *this;
+    
+    clone(rhs);
+    return *this;
+}
 
-//TODO: Implement copying branch lengths between trees
 void Tree::clone(const Tree& t){
     if(nodes.size() != t.nodes.size()){
         deleteAllNodes();
@@ -105,8 +117,12 @@ void Tree::clone(const Tree& t){
         p->setIsTip(q->getIsTip());
         p->setName(q->getName());
 
-        if(q->getAncestor() != nullptr)
-            p->setAncestor(this->nodes[q->getAncestor()->getOffset()]);
+        if(q->getAncestor() != nullptr){
+            Node* ancestor = this->nodes[q->getAncestor()->getOffset()];
+            double bl = t.getBranchLength(q, q->getAncestor());
+            p->setAncestor(ancestor);
+            setBranchLength(p, ancestor, bl);
+        }
         else
             p->setAncestor(nullptr);
 
@@ -121,14 +137,6 @@ void Tree::clone(const Tree& t){
         Node* p = t.postOrderSeq[i];
         this->postOrderSeq.push_back(this->nodes[p->getOffset()]);
     }
-}
-
-Tree& Tree::operator=(const Tree& rhs){
-    if(this == &rhs)
-        return *this;
-    
-    clone(rhs);
-    return *this;
 }
 
 Node* Tree::addNode(void) {
@@ -164,23 +172,6 @@ void Tree::passDown(Node* p, Node* fromNode) {
     postOrderSeq.push_back(p);
 }
 
-void Tree::print(std::string header) {
-    std::cout << header << std::endl;
-    print();
-}
-
-void Tree::print(void) {
-
-    showNode(root, 0);
-}
-
-std::string Tree::getNewick(){
-    std::stringstream strm;
-    writeNode(root, strm);
-    strm << ";";
-    return strm.str();
-}
-
 void Tree::setBranchLength(Node* p1, Node* p2, double length){
     std::pair<Node*, Node*> key;
     if(p1 < p2)
@@ -195,47 +186,45 @@ void Tree::setBranchLength(Node* p1, Node* p2, double length){
         it->second = length;
 }
 
-double Tree::getBranchLength(Node* p1, Node* p2){
+double Tree::getBranchLength(Node* p1, Node* p2) const{
     std::pair<Node*, Node*> key;
     if(p1 < p2)
         key = std::make_pair(p1,p2);
     else
         key = std::make_pair(p2, p1);
-    std::map<std::pair<Node*, Node*>, double>::iterator it = branchLengths.find(key);
+    std::map<std::pair<Node*, Node*>, double>::const_iterator it = branchLengths.find(key);
 
     if(it == branchLengths.end())
         Msg::error("Couldn't find branch length of pair");
     return it->second;
 }
 
-void Tree::writeNode(Node* p, std::stringstream& strm){
-    if(p == nullptr)
-        return;
-    
-    if(!p->getIsTip())
-        strm << "(";
-    else
-        strm << p->getName();
+/*
+=======================================================================
+                            TREE OUTPUT
+=======================================================================
+*/
 
-    std::set<Node*>& pDesc = p->getNeighbors();
-    bool foundFirst = false;
-    for(Node* n : pDesc){
-        if(n != p->getAncestor()){
-            if(foundFirst)
-                strm << ",";
-            foundFirst = true;
-            writeNode(n, strm);
-        }
-    }
-
-    if(!p->getIsTip())
-        strm << ")";
-    if(p->getAncestor() != nullptr){
-        strm << ":" << this->getBranchLength(p, p->getAncestor());
-    }
+std::string Tree::getNewick() const{
+    std::stringstream strm;
+    writeNode(root, strm);
+    strm << ";";
+    return strm.str();
 }
 
-void Tree::showNode(Node* p, int indent) {
+
+void Tree::print(std::string header) const{
+    std::cout << header << std::endl;
+    print();
+}
+
+void Tree::print(void) const{
+
+    showNode(root, 0);
+}
+
+//Output nodes of the tree in a whitespace-indented format
+void Tree::showNode(Node* p, int indent) const{
 
     if(p == nullptr)
         return;
@@ -267,4 +256,32 @@ void Tree::showNode(Node* p, int indent) {
         if(n != p->getAncestor())
             showNode(n, indent+3);
         }
+}
+
+//For outputting a newick string
+void Tree::writeNode(Node* p, std::stringstream& strm) const{
+    if(p == nullptr)
+        return;
+    
+    if(!p->getIsTip())
+        strm << "(";
+    else
+        strm << p->getName();
+
+    std::set<Node*>& pDesc = p->getNeighbors();
+    bool foundFirst = false;
+    for(Node* n : pDesc){
+        if(n != p->getAncestor()){
+            if(foundFirst)
+                strm << ",";
+            foundFirst = true;
+            writeNode(n, strm);
+        }
+    }
+
+    if(!p->getIsTip())
+        strm << ")";
+    if(p->getAncestor() != nullptr){
+        strm << ":" << this->getBranchLength(p, p->getAncestor());
+    }
 }

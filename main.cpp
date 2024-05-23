@@ -12,12 +12,8 @@ int main(int argc, char* argv[]) {
 
     Tree t1(&rv, 10);
     Tree t2(&rv, 9);
-    t1.print("Original T1");
-    t2.print("Original T2");
-
-    std::cout << t1.getNewick() << std::endl;
+    std::cout << "Original T1:\n" << t1.getNewick() << std::endl;
 
     t1 = t2;
-    t1.print("Changed T1");
-
+    std::cout << "Changed T1:\n" << t1.getNewick() << std::endl;
 }

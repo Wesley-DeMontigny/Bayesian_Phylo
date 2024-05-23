@@ -16,20 +16,20 @@ class Tree {
                             Tree(const Tree& t);
                            ~Tree(void);
         Tree&               operator=(const Tree& rhs);
-        void                print(void);
-        void                print(std::string header);
+        void                print(void) const;
+        void                print(std::string header) const;
         void                setBranchLength(Node* p1, Node* p2, double length);
-        double              getBranchLength(Node* p1, Node* p2);
-        std::string         getNewick();
+        double              getBranchLength(Node* p1, Node* p2) const;
+        std::string         getNewick() const;
         
     private:
         Node*               addNode(void);
         void                initPostOrder(void);
         void                passDown(Node* p, Node* fromNode);
-        void                showNode(Node* p, int indent);
+        void                showNode(Node* p, int indent) const;
         void                clone(const Tree& t);
         void                deleteAllNodes();
-        void                writeNode(Node* p, std::stringstream& strm);
+        void                writeNode(Node* p, std::stringstream& strm) const;
         int                 numTaxa;
         std::map<std::pair<Node*, Node*>, double> branchLengths;
         Node*               root;
