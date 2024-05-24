@@ -4,14 +4,14 @@
 #include "RandomVariable.hpp"
 #include "Msg.hpp"
 #include "Tree.hpp"
+#include "ncl/ncl.h"
 
-//TODO: Include nexus class library (written by Paul Lewis and Mark Holder)
 int main(int argc, char* argv[]) {
 
     RandomVariable& rv = RandomVariable::randomVariableInstance();
 
     Tree t1(&rv, 10);
-    Tree t2(&rv, 9);
+    Tree t2(&rv, 20);
     std::cout << "Original T1:\n" << t1.getNewick() << std::endl;
 
     t1 = t2;
