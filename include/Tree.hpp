@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <map>
+#include <set>
 
 class Node;
 class RandomVariable;
@@ -14,6 +15,7 @@ class Tree {
                             Tree(void) = delete; // Impossible to make a tree from the default constructor
                             Tree(RandomVariable* rng, int nt);
                             Tree(const Tree& t);
+                            Tree(RandomVariable* rng, double lambda, double mu, double duration);
                            ~Tree(void);
         Tree&               operator=(const Tree& rhs);
         void                print(void) const;
@@ -24,6 +26,7 @@ class Tree {
         
     private:
         Node*               addNode(void);
+        Node*               chooseNodeFromSet(std::set<Node*>& s, RandomVariable* rng);
         void                initPostOrder(void);
         void                passDown(Node* p, Node* fromNode);
         void                showNode(Node* p, int indent) const;

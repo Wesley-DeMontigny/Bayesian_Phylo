@@ -4,11 +4,10 @@ project(Bayesian_Phylo)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-include_directories(${PROJECT_SOURCE_DIR}/include)
-
-link_directories(${PROJECT_SOURCE_DIR}/lib)
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/ncl)
 
 file(GLOB SOURCES "src/*.cpp")
 add_executable(main ${SOURCES})
 
-include_directories(${PROJECT_SOURCE_DIR}/lib/ncl/)
+target_link_libraries(main PRIVATE ncl_shared)
+target_include_directories(main PRIVATE ${PROJECT_SOURCE_DIR}/include)

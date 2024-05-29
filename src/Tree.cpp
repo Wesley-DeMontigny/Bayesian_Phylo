@@ -6,7 +6,7 @@
 
 /*
 =======================================================================
-                        BASIC TREE FUNCTIONALITY
+                        TREE CONSTRUCTORS/DESTRUCTORS
 =======================================================================
 */
 
@@ -82,9 +82,122 @@ Tree::Tree(const Tree& t){
     clone(t);
 }
 
+/*
+-------------- Birth-Death Cladogenesis Tree Constructor ----------------------
+The Birth-Death Model of Cladogenesis is a model for speciation that treats
+speciation (splitting a branch) and termination (ending of a branch) as random 
+evenets. At the end of the simulation, all extant species have equal branch
+lengths, while the extinct species have shorter ones corresponding to the time
+of extinction.
+
+The probability of speciation during a given interval of time is t*lambda, and 
+the probability of extinction during an interval of time is t*mu. Thus, the probability
+of an event happening at all (extinction or speciation) is distributed according to
+the rate lambda + mu in an exp distribution. Given an event occurs, it's speciation
+probability is lambda/(lambda+mu) and the extinction probability is mu/(lambda+mu). 
+This makes sense - it is basically the lambda or mu share of lambda+mu.
+
+The algorithm here is pretty simple:
+1. Make a loop and during each iteration add a waiting time to the the counter t.
+2. So long as the time hasn't passed the maximum duration, draw a uniform variable.
+3. If the uniform variable is less than lambda/(lambda+mu) then it corresponds to the
+   speciation probability. Pick a random non-dead branch and split it.
+4. If the event corresponds with death, kill off the branch.
+*/
+Tree::Tree(RandomVariable* rng, double lambda, double mu, double duration){
+
+    root = addNode();
+    root->setName("Root");
+
+    std::set<Node*> activeNodes;
+    /*
+    I am tracking whether or not a node is alive or dead within the function
+    but hypothetically I could have a derived class that tracks it as a variable
+    within the tree. I could imagine that being useful if you actually cared about
+    what branches are alive or dead.
+    */
+    std::map<Node*, double> birthPoints;
+    std::map<Node*, double> endPoints;
+
+    Node* n1 = addNode();
+    n1->setAncestor(root);
+    n1->addNeighbor(root);
+    root->addNeighbor(n1);
+
+    
+    activeNodes.insert(n1);
+    birthPoints.insert({n1, 0.0});
+
+    double t = 0.0;
+    while(t < duration){
+        double rate = activeNodes.size() * (lambda + mu);
+        t += rng->exponentialRv(rate);
+
+        if(t < duration){
+            Node* selectedP = chooseNodeFromSet(activeNodes, rng);
+
+            double u = rng->uniformRv();
+            if(u < lambda / (lambda+mu)){
+                //Speciation
+                Node* p1 = addNode();
+                p1->setAncestor(selectedP);
+                p1->addNeighbor(selectedP);
+                selectedP->addNeighbor(p1);
+                Node* p2 = addNode();
+                p2->setAncestor(selectedP);
+                p2->addNeighbor(selectedP);
+                selectedP->addNeighbor(p2);
+
+                activeNodes.erase(selectedP);
+                activeNodes.insert(p1);
+                activeNodes.insert(p2);
+
+                endPoints.insert({selectedP, t});
+                birthPoints.insert({p1, t});
+                birthPoints.insert({p2, t});
+            }
+            else{
+                //Extinction
+                activeNodes.erase(selectedP);
+                endPoints.insert({selectedP, t});
+            }
+        }
+    }
+
+    //Set the branch ends for all currently active branches
+    for(Node* n : activeNodes)
+        endPoints.insert({n, t});
+
+    initPostOrder();
+
+    //Set names, indices, and tips
+    int currentID = 0;
+    for(int i = 0; i < postOrderSeq.size(); i++){
+        Node* p = postOrderSeq[i];
+
+        if(p->getAncestor() != nullptr){
+            if(p->getNeighbors().size() == 1){
+                p->setIndex(currentID++);
+                p->setName("Taxon_" + std::to_string(currentID));
+                p->setIsTip(true);
+            }
+            auto itB = birthPoints.find(p);
+            auto itE = endPoints.find(p);
+
+            setBranchLength(p, p->getAncestor(), itE->second - itB->second);
+        }
+    }
+}
+
 Tree::~Tree(void) {
     deleteAllNodes();
 }
+
+/*
+=======================================================================
+                        BASIC TREE FUNCTION
+=======================================================================
+*/
 
 void Tree::deleteAllNodes(){
     for (int i = 0; i < nodes.size(); i++)
@@ -145,6 +258,17 @@ Node* Tree::addNode(void) {
     newNode->setOffset((int)nodes.size());
     nodes.push_back(newNode);
     return newNode;
+}
+
+Node* Tree::chooseNodeFromSet(std::set<Node*>& s, RandomVariable* rng){
+    int whichNode = (int)(s.size() * rng->uniformRv());
+    int i = 0;
+    for(Node* n : s){
+        if(whichNode == i)
+            return n;
+        i++;
+    }
+    return nullptr;
 }
 
 void Tree::initPostOrder(void) {
