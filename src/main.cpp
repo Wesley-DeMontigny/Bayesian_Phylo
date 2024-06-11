@@ -3,17 +3,19 @@
 #include "Msg.hpp"
 #include "Tree.hpp"
 #include "Alignment.hpp"
+#include "TreeModel.hpp"
+#include "JC69.hpp"
 
 int main(int argc, char* argv[]) {
 
     RandomVariable& rv = RandomVariable::randomVariableInstance();
     Alignment aln("C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/primates_and_galeopterus_cytb.nex");
 
+    JC69 model(1);
 
-    Tree t1(&rv, 10);
-    Tree t2(&rv, 3.0, 1.0, 2.0);
-    std::cout << "Original T1:\n" << t1.getNewick() << std::endl;
+    Tree t1(&rv, aln);
+    double L1 = model.FelPrune(t1, aln);
 
-    t1 = t2;
-    std::cout << "Changed T1:\n" << t1.getNewick() << std::endl;
+    std::cout << "Alignment Log Likelihood Given Random Tree: " << L1 << std::endl;
+
 }

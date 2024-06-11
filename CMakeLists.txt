@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_subdirectory(${PROJECT_SOURCE_DIR}/lib/ncl)
 
-file(GLOB SOURCES "src/*.cpp")
+file(GLOB SOURCES "${PROJECT_SOURCE_DIR}/src/*.cpp")
 add_executable(main ${SOURCES})
 
 target_link_libraries(main PRIVATE ncl_shared)

@@ -59,7 +59,7 @@ Tree::Tree(RandomVariable* rng, int nt) : numTaxa(nt) {
         
     // initialize the down pass sequence
     initPostOrder();
-    
+
     // Initialize branch lengths
     for (int i=0, n=(int)postOrderSeq.size(); i<n; i++)
         {
@@ -76,6 +76,21 @@ Tree::Tree(RandomVariable* rng, int nt) : numTaxa(nt) {
         if (p->getIsTip() == false)
             p->setIndex(intIdx++);
         }
+}
+
+//Generate a random tree and connect it to an alignment
+Tree::Tree(RandomVariable* rng, Alignment aln) : Tree(rng, aln.getNumTaxa()) {
+
+    int i = 0;
+    std::vector<std::string> names = aln.getTaxaNames();
+    for(Node* n : getTips()){
+        n->setName(names[i]);
+        n->setAlignmentIndex(i);
+
+        i++;
+        if(i == names.size())
+            break;
+    }
 }
 
 Tree::Tree(const Tree& t){
@@ -229,6 +244,7 @@ void Tree::clone(const Tree& t){
         p->setIndex(q->getIndex());
         p->setIsTip(q->getIsTip());
         p->setName(q->getName());
+        p->setAlignmentIndex(q->getAlignmentIndex());
 
         if(q->getAncestor() != nullptr){
             Node* ancestor = this->nodes[q->getAncestor()->getOffset()];
@@ -321,6 +337,18 @@ double Tree::getBranchLength(Node* p1, Node* p2) const{
     if(it == branchLengths.end())
         Msg::error("Couldn't find branch length of pair");
     return it->second;
+}
+
+std::vector<Node*> Tree::getTips(){
+    std::vector<Node*> out;
+    out.reserve(numTaxa);
+
+    for(Node* n : nodes){
+        if(n->getIsTip())
+            out.push_back(n);
+    }
+
+    return out;
 }
 
 /*

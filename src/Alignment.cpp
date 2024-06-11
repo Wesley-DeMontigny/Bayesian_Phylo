@@ -25,7 +25,7 @@ Alignment::Alignment(std::string fn){
         for(size_t cBlock = 0; cBlock < numCharBlocks; cBlock++){
             NxsCharactersBlock* charBlock = nexusReader.GetCharactersBlock(taxaBlock, cBlock);
             std::string charBlockTitle = charBlock->GetTitle();
-            int dataType = charBlock->GetDataType();
+            dataType = charBlock->GetDataType();
             if(dataType == NxsCharactersBlock::dna || dataType == NxsCharactersBlock::nucleotide || dataType == NxsCharactersBlock::rna){
                 readNucleotideData(charBlock);
             }
@@ -38,30 +38,31 @@ Alignment::Alignment(std::string fn){
 }
 
 Alignment::~Alignment(){
-    for(int i = 0; i < numTaxa; i++) {
-        delete[] matrix[i];
-    }
-    delete[] matrix;
 }
 
 void Alignment::readNucleotideData(NxsCharactersBlock* charBlock){
     numTaxa = charBlock->GetNumActiveTaxa();
     numChar = charBlock->GetNumActiveChar();
-    matrix = new int*[numTaxa];
+    matrix.clear();
+
     for(int i = 0; i < numTaxa; i++){
-        matrix[i] = new int[numChar];
+        std::vector<int> taxaChars;
+        taxaChars.reserve(numChar);
+        taxaNames.push_back(charBlock->GetTaxonLabel(i));
         for(int j = 0; j < numChar; j++){
             char state = charBlock->GetState(i,j);
             if(state == 'A')
-                matrix[i][j] = 1;
+                taxaChars.push_back(1);
             else if (state == 'T')
-                matrix[i][j] = 2;
+                taxaChars.push_back(2);
             else if (state == 'C')
-                matrix[i][j] = 4;
+                taxaChars.push_back(4);
             else if (state == 'G')
-                matrix[i][j] = 8;
+                taxaChars.push_back(8);
             else if (state == 'N' || state == '-' || state == '?')
-                matrix[i][j] = 15;
+                taxaChars.push_back(15);
         }
+        
+        matrix.push_back(taxaChars);
     }
 }

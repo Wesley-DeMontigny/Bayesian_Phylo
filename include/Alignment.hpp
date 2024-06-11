@@ -5,19 +5,23 @@
 
 class Alignment{
     public:
-        Alignment(void) = delete;
-        Alignment(std::string fn);
-        ~Alignment();
-        int getNumTaxa(){return numTaxa;}
-        int getNumChar(){return numChar;}
-        int** getMatrix(){return matrix;}
+                                    Alignment(void) = delete;
+                                    Alignment(std::string fn);
+                                    ~Alignment();
+        int                         getNumTaxa() {return numTaxa;}
+        int                         getNumChar() {return numChar;}
+        std::vector<std::string>    getTaxaNames() {return taxaNames;}
+        std::vector<std::vector<int>> getMatrix() {return matrix;}
+        int                         getDataType() {return dataType;}
     private:
-        void readNucleotideData(NxsCharactersBlock* charBlock);
+        void                        readNucleotideData(NxsCharactersBlock* charBlock);
         //ATCG = 1248
-        //?N = 15
-        int** matrix;
-        int numTaxa;
-        int numChar;
+        //?N- = 15
+        std::vector<std::vector<int>> matrix;
+        int                         numTaxa;
+        int                         numChar;
+        int                         dataType;
+        std::vector<std::string>    taxaNames;
 };
 
 #endif
