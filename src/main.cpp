@@ -11,7 +11,7 @@ int main(int argc, char* argv[]) {
     RandomVariable& rv = RandomVariable::randomVariableInstance();
     Alignment aln("C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/primates_and_galeopterus_cytb.nex");
 
-    JC69 model(1);
+    JC69 model;
 
     Tree t1(&rv, aln);
     double L1 = model.FelPrune(t1, aln);
