@@ -53,11 +53,11 @@ void Alignment::readNucleotideData(NxsCharactersBlock* charBlock){
             char state = charBlock->GetState(i,j);
             if(state == 'A')
                 taxaChars.push_back(1);
-            else if (state == 'T')
-                taxaChars.push_back(2);
             else if (state == 'C')
-                taxaChars.push_back(4);
+                taxaChars.push_back(2);
             else if (state == 'G')
+                taxaChars.push_back(4);
+            else if (state == 'T')
                 taxaChars.push_back(8);
             else if (state == 'N' || state == '-' || state == '?')
                 taxaChars.push_back(15);

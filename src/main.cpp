@@ -14,7 +14,7 @@ int main(int argc, char* argv[]) {
     JC69 model;
 
     Tree t1(&rv, aln);
-    double L1 = model.FelPrune(t1, aln);
+    double L1 = model.FelPrune(t1, aln, true);
 
     std::cout << "Alignment Log Likelihood Given Random Tree: " << L1 << std::endl;
 

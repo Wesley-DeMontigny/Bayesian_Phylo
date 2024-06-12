@@ -8,7 +8,7 @@
 class TreeModel{
     public:
         TreeModel();
-        double FelPrune(Tree t, Alignment aln);
+        double FelPrune(Tree t, Alignment aln, bool debug);
         void setStationaryDist(std::vector<double> dist) {stationaryDist = dist;}
         std::vector<double> getStationaryDist() {return stationaryDist;}
     protected:

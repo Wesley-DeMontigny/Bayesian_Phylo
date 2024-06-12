@@ -15,7 +15,7 @@ class Alignment{
         int                         getDataType() {return dataType;}
     private:
         void                        readNucleotideData(NxsCharactersBlock* charBlock);
-        //ATCG = 1248
+        //ACGT = 1248
         //?N- = 15
         std::vector<std::vector<int>> matrix;
         int                         numTaxa;
