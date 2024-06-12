@@ -15,8 +15,8 @@ changes per site.
 */
 std::vector<std::vector<double>> JC69::transitionProbability(double time){
 
-    double p0 = std::log(0.25 + (0.75 * std::exp((-4.0/3.0) * time)));
-    double p1 = std::log(0.25 - (0.25 * std::exp((-4.0/3.0) * time)));
+    double p0 = 0.25 + (0.75 * std::exp((-4.0/3.0) * time));
+    double p1 = 0.25 - (0.25 * std::exp((-4.0/3.0) * time));
 
     std::vector<std::vector<double>> pMatrix = 
                             {
