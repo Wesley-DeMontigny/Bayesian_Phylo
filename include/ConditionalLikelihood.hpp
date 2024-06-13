@@ -7,14 +7,14 @@
 class ConditionalLikelihood{
     public:
         ConditionalLikelihood(void) = delete;
-        ConditionalLikelihood(Tree t, Alignment aln);
+        ConditionalLikelihood(Tree* t, Alignment* aln);
         ~ConditionalLikelihood();
         double* getCondLikelihood(int nodeIndex, int site, int characterState);
         double* getRootConditionalLikelihood(int site, int characterState);
     private:
         std::vector<double> condLikelihoods;
-        const int numNodes;
-        const int rootIndex;
+        int numNodes;
+        int rootIndex;
 };
 
 #endif

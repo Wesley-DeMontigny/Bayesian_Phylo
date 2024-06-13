@@ -6,7 +6,7 @@
 class Node{
     public:
         Node();
-        Node*               getAncestor() const {return ancestor;}
+        Node*               getAncestor() {return ancestor;}
         void                setAncestor(Node* a) {ancestor = a;}
         std::set<Node*>&    getNeighbors() {return neighbors;}
         void                addNeighbor(Node* n) {neighbors.insert(n);}

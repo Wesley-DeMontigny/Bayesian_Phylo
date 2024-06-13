@@ -15,7 +15,7 @@ class Tree {
     public:
                             Tree(void) = delete; // Impossible to make a tree from the default constructor
                             Tree(RandomVariable* rng, int nt);
-                            Tree(RandomVariable* rng, Alignment aln);
+                            Tree(RandomVariable* rng, Alignment* aln);
                             Tree(const Tree& t);
                             Tree(RandomVariable* rng, double lambda, double mu, double duration);
                            ~Tree(void);
@@ -24,10 +24,10 @@ class Tree {
         void                print(std::string header) const;
         void                setBranchLength(Node* p1, Node* p2, double length);
         double              getBranchLength(Node* p1, Node* p2) const;
-        Node*               getRoot() const {return root;}
+        Node*               getRoot() {return root;}
         std::vector<Node*>  getTips();
         std::string         getNewick() const;
-        std::vector<Node*>  getPostOrderSeq() const {return postOrderSeq;}
+        std::vector<Node*>  getPostOrderSeq() {return postOrderSeq;}
         
     private:
         Node*               addNode(void);

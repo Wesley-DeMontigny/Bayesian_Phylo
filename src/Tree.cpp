@@ -79,10 +79,10 @@ Tree::Tree(RandomVariable* rng, int nt) : numTaxa(nt) {
 }
 
 //Generate a random tree and connect it to an alignment
-Tree::Tree(RandomVariable* rng, Alignment aln) : Tree(rng, aln.getNumTaxa()) {
+Tree::Tree(RandomVariable* rng, Alignment* aln) : Tree(rng, aln->getNumTaxa()) {
 
     int i = 0;
-    std::vector<std::string> names = aln.getTaxaNames();
+    std::vector<std::string> names = aln->getTaxaNames();
     for(Node* n : getTips()){
         n->setName(names[i]);
         n->setAlignmentIndex(i);
@@ -339,7 +339,7 @@ double Tree::getBranchLength(Node* p1, Node* p2) const{
     return it->second;
 }
 
-std::vector<Node*> Tree::getTips(){
+std::vector<Node*> Tree::getTips() {
     std::vector<Node*> out;
     out.reserve(numTaxa);
 

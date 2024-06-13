@@ -1,13 +1,12 @@
 #ifndef JC69_Model
 #define JC69_Model
-#include "TreeModel.hpp"
+#include "EvolutionaryModel.hpp"
 
-class JC69 : public TreeModel{
+class JC69 : public EvolutionaryModel {
     public:
-        JC69(void);
+        JC69(Tree* t, Alignment* a, std::vector<double> sD);
     protected:
-        std::vector<std::vector<double>> transitionProbability(double time);
-        std::vector<double> stationaryDist;
+        std::vector<std::vector<double>> P(double time);
 };
 
 #endif

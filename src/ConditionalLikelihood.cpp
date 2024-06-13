@@ -1,15 +1,16 @@
 #include "ConditionalLikelihood.hpp"
 
-ConditionalLikelihood::ConditionalLikelihood(Tree t, Alignment aln) : numNodes(t.getPostOrderSeq().size()), rootIndex(t.getRoot()->getIndex()) {
+ConditionalLikelihood::ConditionalLikelihood(Tree* t, Alignment* aln) : numNodes(t->getPostOrderSeq().size()), rootIndex(t->getRoot()->getIndex()) {
     //Indexing is (node_index*4 + state) + (site_index * num_nodes * 4)
-    condLikelihoods.reserve(numNodes * aln.getNumChar() * 4);
-    condLikelihoods.resize(numNodes * aln.getNumChar() * 4);
+    int numChar = aln->getNumChar();
+    condLikelihoods.reserve(numNodes * numChar * 4);
+    condLikelihoods.resize(numNodes * numChar * 4);
 
     //Iterate over all character sites
-    for(int i = 0; i < aln.getNumChar(); i++){
+    for(int i = 0; i < numChar; i++){
         //Iterate over all tips
-        for(Node* n : t.getTips()){
-            int state = aln.getMatrix()[n->getAlignmentIndex()][i];
+        for(Node* n : t->getTips()){
+            int state = aln->getMatrix()[n->getAlignmentIndex()][i];
 
             int base_index = (n->getIndex() * 4) + (numNodes * 4 * i);
             
