@@ -81,15 +81,86 @@ Tree::Tree(RandomVariable* rng, int nt) : numTaxa(nt) {
 //Generate a random tree and connect it to an alignment
 Tree::Tree(RandomVariable* rng, Alignment* aln) : Tree(rng, aln->getNumTaxa()) {
 
-    int i = 0;
     std::vector<std::string> names = aln->getTaxaNames();
-    for(Node* n : getTips()){
-        n->setName(names[i]);
-        n->setAlignmentIndex(i);
+    for(Node* n : postOrderSeq){
+        if(n->getIsTip())
+            n->setName(names[n->getIndex()]);
+    }
 
-        i++;
-        if(i == names.size())
-            break;
+    
+}
+
+//Change to match index to taxon name
+Tree::Tree(std::string newick, std::vector<std::string> taxaNames){
+    std::vector<std::string> tokens = parseNewickString(newick);
+
+    Node* p = nullptr;
+    bool readingBranchLength = false;
+
+    numTaxa = 0;
+
+    for(std::string tok : tokens){
+        if(tok == "("){
+            Node* newNode = addNode();
+            if(p == nullptr)
+                root = newNode;
+            else{
+                p->addNeighbor(newNode);
+                newNode->addNeighbor(p);
+                newNode->setAncestor(p);
+                setBranchLength(p, newNode, 0.0);
+            }
+
+            p = newNode;
+        }
+        else if(tok == ")" || tok == ","){
+            if(p->getAncestor() != nullptr)
+                p = p->getAncestor();
+            else
+                Msg::error("Poorly formatted Newick -P should not be null.");
+        }
+        else if(tok == ":"){
+            readingBranchLength = true;
+        }
+        else if(tok == ";"){
+            if(p != root)
+                Msg::error("Poorly formatted Newick - Did not end at root.");
+        }
+        else{
+            if(readingBranchLength){
+                double x = atof(tok.c_str());
+                setBranchLength(p, p->getAncestor(), x);
+            }
+            else{
+                Node* newNode = addNode();
+                p->addNeighbor(newNode);
+                newNode->addNeighbor(p);
+                newNode->setAncestor(p);
+                newNode->setName(tok);
+                newNode->setIsTip(true);
+                setBranchLength(p, newNode, 0.0);
+
+                int taxonIndex = getTaxonIndex(tok, taxaNames);
+                if(taxonIndex == -1)
+                    Msg::error("Token is not in taxa names");
+                newNode->setIndex(taxonIndex);
+
+                p = newNode;
+                numTaxa++;
+            }
+            readingBranchLength = false;
+        }
+    }
+    initPostOrder();
+    
+    if(numTaxa != taxaNames.size())
+        Msg::error("Taxa names do not match newick string");
+
+    int idx = numTaxa;
+    for(Node* n : postOrderSeq){
+        if(n->getIsTip() == false){
+            n->setIndex(idx++);
+        }
     }
 }
 
@@ -244,7 +315,6 @@ void Tree::clone(const Tree& t){
         p->setIndex(q->getIndex());
         p->setIsTip(q->getIsTip());
         p->setName(q->getName());
-        p->setAlignmentIndex(q->getAlignmentIndex());
 
         if(q->getAncestor() != nullptr){
             Node* ancestor = this->nodes[q->getAncestor()->getOffset()];
@@ -351,6 +421,37 @@ std::vector<Node*> Tree::getTips() {
     return out;
 }
 
+int Tree::getTaxonIndex(std::string token, std::vector<std::string> taxaNames){
+
+    for(int i = 0, n = taxaNames.size(); i < n; i++){
+        if(taxaNames[i] == token)
+            return i;
+    }
+
+    return -1;
+}
+
+std::vector<std::string> Tree::parseNewickString(std::string newick){
+    std::vector<std::string> tokens;
+    std::string str = "";
+    for(int i = 0; i < newick.length(); i++){
+        char c = newick[i];
+        if(c == '(' || c == ')' || c == ',' || c == ':' || c == ';'){
+            if(str != ""){
+                tokens.push_back(str);
+                str = "";
+            }
+
+            tokens.push_back(std::string(1, c));
+        }
+        else if(c != ' '){
+            str += std::string(1, c);
+        }
+    }
+
+    return tokens;
+}
+
 /*
 =======================================================================
                             TREE OUTPUT
@@ -363,7 +464,6 @@ std::string Tree::getNewick() const{
     strm << ";";
     return strm.str();
 }
-
 
 void Tree::print(std::string header) const{
     std::cout << header << std::endl;

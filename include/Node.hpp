@@ -20,8 +20,6 @@ class Node{
         void                setIsTip(bool t) {isTip = t;}
         std::string         getName() const {return name;}
         void                setName(std::string s) {name = s;}
-        void                setAlignmentIndex(int i) {alignmentIndex = i;}
-        int                 getAlignmentIndex() {return alignmentIndex;}
     private:
         Node*               ancestor;
         std::set<Node*>     neighbors;
@@ -29,7 +27,6 @@ class Node{
         bool                isTip;
         std::string         name;
         int                 offset;
-        int                 alignmentIndex;
 };
 
 #endif

@@ -9,12 +9,16 @@ class ConditionalLikelihood{
         ConditionalLikelihood(void) = delete;
         ConditionalLikelihood(Tree* t, Alignment* aln);
         ~ConditionalLikelihood();
-        double* getCondLikelihood(int nodeIndex, int site, int characterState);
-        double* getRootConditionalLikelihood(int site, int characterState);
+        int getRootIndex(){return rootIndex;}
+        double* operator()(int n, int s);
+        int getActiveState(){return activeState;};
+        int swapActiveState();
     private:
-        std::vector<double> condLikelihoods;
+        double* condLikelihoods[2];
+        int numChar;
         int numNodes;
         int rootIndex;
+        int activeState;
 };
 
 #endif

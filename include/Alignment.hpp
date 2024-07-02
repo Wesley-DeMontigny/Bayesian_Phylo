@@ -11,13 +11,14 @@ class Alignment{
         int                         getNumTaxa() {return numTaxa;}
         int                         getNumChar() {return numChar;}
         std::vector<std::string>    getTaxaNames() {return taxaNames;}
-        std::vector<std::vector<int>> getMatrix() {return matrix;}
+        int**                       getMatrix() {return matrix;}
+        int                         getCharCode(int i, int j) {return matrix[i][j];}
         int                         getDataType() {return dataType;}
     private:
         void                        readNucleotideData(NxsCharactersBlock* charBlock);
         //ACGT = 1248
         //?N- = 15
-        std::vector<std::vector<int>> matrix;
+        int**                       matrix;
         int                         numTaxa;
         int                         numChar;
         int                         dataType;

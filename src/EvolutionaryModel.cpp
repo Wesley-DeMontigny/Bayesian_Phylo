@@ -1,7 +1,7 @@
 #include "EvolutionaryModel.hpp"
 
 EvolutionaryModel::EvolutionaryModel(Tree* t, Alignment* a,
-                                     std::vector<double> sD) :
+                                     double* sD) :
                                      tree(t), aln(a), stationaryDist(sD) {
     condL = new ConditionalLikelihood(t, aln);
 }
@@ -18,4 +18,9 @@ void EvolutionaryModel::initializeTransitionProbabilityMap() {
                 );
         }
     }
+    
+}
+
+EvolutionaryModel::~EvolutionaryModel(){
+    delete condL;
 }

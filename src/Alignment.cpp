@@ -38,31 +38,35 @@ Alignment::Alignment(std::string fn){
 }
 
 Alignment::~Alignment(){
+    delete [] matrix[0];
+    delete [] matrix;
 }
 
 void Alignment::readNucleotideData(NxsCharactersBlock* charBlock){
     numTaxa = charBlock->GetNumActiveTaxa();
     numChar = charBlock->GetNumActiveChar();
-    matrix.clear();
+    matrix = new int*[numTaxa];
+    matrix[0] = new int[numTaxa*numChar];
+    for(int i = 1; i < numTaxa; i++)
+        matrix[i] = matrix[i-1] + numChar;
+    for(int i = 0; i < numTaxa; i++)
+        for(int j = 0; j < numChar; j++)
+            matrix[i][j] = 0;
 
     for(int i = 0; i < numTaxa; i++){
-        std::vector<int> taxaChars;
-        taxaChars.reserve(numChar);
         taxaNames.push_back(charBlock->GetTaxonLabel(i));
         for(int j = 0; j < numChar; j++){
             char state = charBlock->GetState(i,j);
-            if(state == 'A')
-                taxaChars.push_back(1);
-            else if (state == 'C')
-                taxaChars.push_back(2);
-            else if (state == 'G')
-                taxaChars.push_back(4);
-            else if (state == 'T')
-                taxaChars.push_back(8);
-            else if (state == 'N' || state == '-' || state == '?')
-                taxaChars.push_back(15);
+            if(state == 'A' || state == 'R' || state == 'W' || state == 'M' || state == 'D' || state == 'H' || state == 'V')
+                matrix[i][j] += 1;
+            if(state == 'C' || state == 'Y' || state == 'S' || state == 'M' || state == 'B' || state == 'H' || state == 'V')
+                matrix[i][j] += 2;
+            if(state == 'G' || state == 'R' || state == 'S' || state == 'K' || state == 'B' || state == 'D' || state == 'V')
+                matrix[i][j] += 4;
+            if(state == 'T' || state == 'Y' || state == 'W' || state == 'K' || state == 'B' || state == 'D' || state == 'H')
+                matrix[i][j] += 8;
+            if(state == 'N' || state == '-' || state == '?')
+                matrix[i][j] = 15;
         }
-        
-        matrix.push_back(taxaChars);
     }
 }

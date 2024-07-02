@@ -1,39 +1,44 @@
 #include "ConditionalLikelihood.hpp"
 
-ConditionalLikelihood::ConditionalLikelihood(Tree* t, Alignment* aln) : numNodes(t->getPostOrderSeq().size()), rootIndex(t->getRoot()->getIndex()) {
-    //Indexing is (node_index*4 + state) + (site_index * num_nodes * 4)
-    int numChar = aln->getNumChar();
-    condLikelihoods.reserve(numNodes * numChar * 4);
-    condLikelihoods.resize(numNodes * numChar * 4);
+ConditionalLikelihood::ConditionalLikelihood(Tree* t, Alignment* aln) : numNodes(t->getPostOrderSeq().size()), rootIndex(t->getRoot()->getIndex()), active(0) {
+    numChar = aln->getNumChar();
+    condLikelihoods[0] = new double[2*numNodes*numChar*4];
+    condLikelihoods[1] = condLikelihoods[0] + (numNodes*numChar*4);
 
-    //Iterate over all character sites
-    for(int i = 0; i < numChar; i++){
-        //Iterate over all tips
-        for(Node* n : t->getTips()){
-            int state = aln->getMatrix()[n->getAlignmentIndex()][i];
+    for(int i = 0; i < numNodes*numChar*4; i++){
+        condLikelihoods[0][i] = 0.0;
+        condLikelihoods[1][i] = 0.0;
+    }
 
-            int base_index = (n->getIndex() * 4) + (numNodes * 4 * i);
-            
-            double stateCount = 0;
+    for(Node* n : t->getTips()){
+        double* p = (*this)(n->getIndex(), 0);
+        for(int i = 0; i < numChar; i++){
+            unsigned state = aln->getMatrix()[n->getIndex()][i];
+
+            unsigned mask = 1;
+
             for(int j = 0; j < 4; j++) {
-                condLikelihoods[base_index + j] = (state >> j & 1);
-                stateCount += condLikelihoods[base_index + j];
+                if((mask & state) != 0)
+                    *p = 1.0;
+                mask >>= 1;
+                p++;
             }
-
-            for(int k = 0; k < 4; k++)
-                condLikelihoods[base_index + k] = condLikelihoods[base_index + k] / stateCount;
         }
 
     }
 }
 
 ConditionalLikelihood::~ConditionalLikelihood(){
+    delete [] condLikelihoods[0];
 }
 
-double* ConditionalLikelihood::getRootConditionalLikelihood(int site, int characterState){
-    return &condLikelihoods[(rootIndex * 4 + characterState) + (numNodes * 4 * site)];
+
+double* ConditionalLikelihood::operator()(int n, int s){
+    return condLikelihoods[s] + n*numChar*4;
 }
 
-double* ConditionalLikelihood::getCondLikelihood(int nodeIndex, int site, int characterState){
-    return &condLikelihoods[(nodeIndex * 4 + characterState) + (numNodes * 4 * site)];
+
+int ConditionalLikelihood::swapActiveState(){
+    activeState = activeState ^ 1; // Bitwise XOR Swap
+    return activeState;
 }

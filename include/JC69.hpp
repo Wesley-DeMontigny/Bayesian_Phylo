@@ -4,9 +4,9 @@
 
 class JC69 : public EvolutionaryModel {
     public:
-        JC69(Tree* t, Alignment* a, std::vector<double> sD);
+        JC69(Tree* t, Alignment* a, double* sD);
     protected:
-        std::vector<std::vector<double>> P(double time);
+        DoubleMatrix P(double time);
 };
 
 #endif

@@ -10,18 +10,18 @@ double TreeLikelihood::FelPrune(EvolutionaryModel* model){
     Tree* t = model->getTree();
     Alignment* aln = model->getAlignment();
     ConditionalLikelihood* condL = model->getConditionalLikelihood();
-    std::vector<double> stationaryDist = model->getSationaryDistribution();
-    std::map<double, std::vector<std::vector<double>>> transitionProbMap = model->getTransitionProbabilityMap();
+    int activeState = condL->getActiveState();
+    double* stationaryDist = model->getSationaryDistribution();
+    std::map<double, DoubleMatrix> transitionProbMap = model->getTransitionProbabilityMap();
 
     if(aln->getDataType() != NxsCharactersBlock::dna && aln->getDataType() != NxsCharactersBlock::rna && aln->getDataType() != NxsCharactersBlock::nucleotide)
         Msg::error("Non-nucleotide data is currently not implemented");
 
     std::vector<Node*> nodes = t->getPostOrderSeq();
 
-    std::vector<double> siteLogLikelihoods;
-    siteLogLikelihoods.reserve(aln->getNumChar());
-    siteLogLikelihoods.resize(aln->getNumChar());
-    std::vector<std::vector<int>> dataMatrix = aln->getMatrix();
+    double* siteLogLikelihoods = new double[aln->getNumChar()];
+    for(int i = 0; i < aln->getNumChar(); i++)
+        siteLogLikelihoods[i] = 0.0;
 
     //Iterate site by site to get site log likelihoods
     for(int i = 0; i < aln->getNumChar(); i++){
@@ -37,23 +37,23 @@ double TreeLikelihood::FelPrune(EvolutionaryModel* model){
                     double stateL = 1;
                     //Iterate over children
                     for(Node* neighbor : neighbors){
-                        double childL = 0;
+                        double childL = 0.0;
                         if(neighbor != n->getAncestor()){
                             //Get the transition probability from the map
                             double length = t->getBranchLength(n, neighbor);
                             auto itTP = transitionProbMap.find(length);
-                            std::vector<std::vector<double>> P = itTP->second;
+                            DoubleMatrix P = itTP->second;
 
                             int neighborIndex = neighbor->getIndex();
 
                             //Iterate over children states
                             for(int k = 0; k < 4; k++)
-                                childL += (P[j][k] * *condL->getCondLikelihood(neighborIndex, i, k));
+                                childL += (P(j, k) * (*(*condL)(neighborIndex, activeState) + i*4 + k));
 
                             stateL *= childL;
                         }
                     }
-                    *condL->getCondLikelihood(nIndex, i, j) = stateL;
+                    *((*condL)(nIndex, 0) + i*4 + j) = stateL;
                 }
             }
         }
@@ -61,14 +61,16 @@ double TreeLikelihood::FelPrune(EvolutionaryModel* model){
         //Final likelihood is summing over the product of the likelihoods up to the root and the stationary distribution.
         double siteLogL = 0.0;
         for(int j = 0; j < 4; j++)
-            siteLogL += *condL->getRootConditionalLikelihood(i, j) * stationaryDist[j];
+            siteLogL += (*((*condL)(condL->getRootIndex(), activeState) + i*4 + j)) * stationaryDist[j];
 
         siteLogLikelihoods[i] = std::log(siteLogL);
     }
 
     double alignmentLikelihood = 0.0;
-    for(double sLL : siteLogLikelihoods)
-        alignmentLikelihood += sLL;
+    for(int i = 0; i < 4; i++)
+        alignmentLikelihood += siteLogLikelihoods[i];
     
+    delete [] siteLogLikelihoods;
+
     return alignmentLikelihood;
 }

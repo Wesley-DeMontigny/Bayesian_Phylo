@@ -18,6 +18,7 @@ class Tree {
                             Tree(RandomVariable* rng, Alignment* aln);
                             Tree(const Tree& t);
                             Tree(RandomVariable* rng, double lambda, double mu, double duration);
+                            Tree(std::string newick, std::vector<std::string> taxaNames);
                            ~Tree(void);
         Tree&               operator=(const Tree& rhs);
         void                print(void) const;
@@ -31,6 +32,7 @@ class Tree {
         
     private:
         Node*               addNode(void);
+        std::vector<std::string> parseNewickString(std::string newick);
         Node*               chooseNodeFromSet(std::set<Node*>& s, RandomVariable* rng);
         void                initPostOrder(void);
         void                passDown(Node* p, Node* fromNode);
@@ -40,6 +42,7 @@ class Tree {
         void                writeNode(Node* p, std::stringstream& strm) const;
         int                 numTaxa;
         std::map<std::pair<Node*, Node*>, double> branchLengths;
+        int                 getTaxonIndex(std::string token, std::vector<std::string> taxaNames);
         Node*               root;
         std::vector<Node*>  nodes;
         std::vector<Node*>  postOrderSeq;
