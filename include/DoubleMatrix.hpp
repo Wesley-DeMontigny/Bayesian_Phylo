@@ -13,11 +13,13 @@ class DoubleMatrix{
         const double& operator()(size_t r, size_t c) const;
         friend std::ostream& operator<<(std::ostream& out, const DoubleMatrix& m);
         DoubleMatrix& operator=(const DoubleMatrix& rhs);
+        int getCols(){return ncols;}
+        int getRows(){return nrows;}
     private:
-        double* vals;
+        void initializeMatrix(int r, int c);
         int nrows;
         int ncols;
-        void initializeMatrix(int r, int c);
+        double* vals;
 };
 
 #endif

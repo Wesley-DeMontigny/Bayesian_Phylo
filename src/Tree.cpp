@@ -86,7 +86,6 @@ Tree::Tree(RandomVariable* rng, Alignment* aln) : Tree(rng, aln->getNumTaxa()) {
         if(n->getIsTip())
             n->setName(names[n->getIndex()]);
     }
-
     
 }
 
@@ -279,24 +278,38 @@ Tree::~Tree(void) {
     deleteAllNodes();
 }
 
-/*
-=======================================================================
-                        BASIC TREE FUNCTION
-=======================================================================
-*/
-
-void Tree::deleteAllNodes(){
-    for (int i = 0; i < nodes.size(); i++)
-        delete nodes[i];
-    nodes.clear();
-}
-
+//Deep Copy Operation
 Tree& Tree::operator=(const Tree& rhs){
     if(this == &rhs)
         return *this;
     
     clone(rhs);
     return *this;
+}
+
+/*
+=======================================================================
+                        Other Functions
+=======================================================================
+*/
+
+Node* Tree::addNode(void) {
+
+    Node* newNode = new Node;
+    newNode->setOffset((int)nodes.size());
+    nodes.push_back(newNode);
+    return newNode;
+}
+
+Node* Tree::chooseNodeFromSet(std::set<Node*>& s, RandomVariable* rng){
+    int whichNode = (int)(s.size() * rng->uniformRv());
+    int i = 0;
+    for(Node* n : s){
+        if(whichNode == i)
+            return n;
+        i++;
+    }
+    return nullptr;
 }
 
 void Tree::clone(const Tree& t){
@@ -315,6 +328,9 @@ void Tree::clone(const Tree& t){
         p->setIndex(q->getIndex());
         p->setIsTip(q->getIsTip());
         p->setName(q->getName());
+        p->setActiveCL(q->getActiveCL());
+        p->setActiveTP(q->getActiveTP());
+        p->setNeedsUpdate(q->getNeedsUpdate());
 
         if(q->getAncestor() != nullptr){
             Node* ancestor = this->nodes[q->getAncestor()->getOffset()];
@@ -338,48 +354,22 @@ void Tree::clone(const Tree& t){
     }
 }
 
-Node* Tree::addNode(void) {
-
-    Node* newNode = new Node;
-    newNode->setOffset((int)nodes.size());
-    nodes.push_back(newNode);
-    return newNode;
+void Tree::deleteAllNodes(){
+    for (int i = 0; i < nodes.size(); i++)
+        delete nodes[i];
+    nodes.clear();
 }
 
-Node* Tree::chooseNodeFromSet(std::set<Node*>& s, RandomVariable* rng){
-    int whichNode = (int)(s.size() * rng->uniformRv());
-    int i = 0;
-    for(Node* n : s){
-        if(whichNode == i)
-            return n;
-        i++;
+void Tree::flipAllCLs(){
+    for(Node* n : nodes){
+        n->flipCL();
     }
-    return nullptr;
 }
 
-void Tree::initPostOrder(void) {
-
-    postOrderSeq.clear();
-    passDown(root, root);
-}
-
-void Tree::passDown(Node* p, Node* fromNode) {
-
-    if(p == nullptr)
-        return;
-    
-    std::set<Node*>& pNeighbors = p->getNeighbors();
-
-    for(Node* n : pNeighbors)
-        {
-        if(n != p->getAncestor())
-            passDown(n, p);
-        }
-
-    if(p != fromNode)
-        p->setAncestor(fromNode);
-
-    postOrderSeq.push_back(p);
+void Tree::flipAllTPs(){
+    for(Node* n : nodes){
+        n->flipTP();
+    }
 }
 
 void Tree::setBranchLength(Node* p1, Node* p2, double length){
@@ -409,6 +399,13 @@ double Tree::getBranchLength(Node* p1, Node* p2) const{
     return it->second;
 }
 
+std::string Tree::getNewick() const{
+    std::stringstream strm;
+    writeNode(root, strm);
+    strm << ";";
+    return strm.str();
+}
+
 std::vector<Node*> Tree::getTips() {
     std::vector<Node*> out;
     out.reserve(numTaxa);
@@ -429,6 +426,12 @@ int Tree::getTaxonIndex(std::string token, std::vector<std::string> taxaNames){
     }
 
     return -1;
+}
+
+void Tree::initPostOrder(void) {
+
+    postOrderSeq.clear();
+    passDown(root, root);
 }
 
 std::vector<std::string> Tree::parseNewickString(std::string newick){
@@ -452,17 +455,23 @@ std::vector<std::string> Tree::parseNewickString(std::string newick){
     return tokens;
 }
 
-/*
-=======================================================================
-                            TREE OUTPUT
-=======================================================================
-*/
+void Tree::passDown(Node* p, Node* fromNode) {
 
-std::string Tree::getNewick() const{
-    std::stringstream strm;
-    writeNode(root, strm);
-    strm << ";";
-    return strm.str();
+    if(p == nullptr)
+        return;
+    
+    std::set<Node*>& pNeighbors = p->getNeighbors();
+
+    for(Node* n : pNeighbors)
+        {
+        if(n != p->getAncestor())
+            passDown(n, p);
+        }
+
+    if(p != fromNode)
+        p->setAncestor(fromNode);
+
+    postOrderSeq.push_back(p);
 }
 
 void Tree::print(std::string header) const{
@@ -508,6 +517,13 @@ void Tree::showNode(Node* p, int indent) const{
         if(n != p->getAncestor())
             showNode(n, indent+3);
         }
+}
+
+void Tree::updateAll(){
+    for(Node* n : nodes){
+        if(n->getIsTip() == false)
+            n->setNeedsUpdate(true);
+    }
 }
 
 //For outputting a newick string

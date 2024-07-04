@@ -1,6 +1,6 @@
 #include "ConditionalLikelihood.hpp"
 
-ConditionalLikelihood::ConditionalLikelihood(Tree* t, Alignment* aln) : numNodes(t->getPostOrderSeq().size()), rootIndex(t->getRoot()->getIndex()), active(0) {
+ConditionalLikelihood::ConditionalLikelihood(Alignment* aln) : numNodes(aln->getNumTaxa() * 2 - 1) {
     numChar = aln->getNumChar();
     condLikelihoods[0] = new double[2*numNodes*numChar*4];
     condLikelihoods[1] = condLikelihoods[0] + (numNodes*numChar*4);
@@ -10,17 +10,17 @@ ConditionalLikelihood::ConditionalLikelihood(Tree* t, Alignment* aln) : numNodes
         condLikelihoods[1][i] = 0.0;
     }
 
-    for(Node* n : t->getTips()){
-        double* p = (*this)(n->getIndex(), 0);
+    for(int index = 0; index < aln->getNumTaxa(); index++){
+        double* p = (*this)(index, 0);
         for(int i = 0; i < numChar; i++){
-            unsigned state = aln->getMatrix()[n->getIndex()][i];
+            unsigned state = aln->getMatrix()[index][i];
 
             unsigned mask = 1;
 
             for(int j = 0; j < 4; j++) {
                 if((mask & state) != 0)
                     *p = 1.0;
-                mask >>= 1;
+                mask <<= 1;
                 p++;
             }
         }
@@ -35,10 +35,4 @@ ConditionalLikelihood::~ConditionalLikelihood(){
 
 double* ConditionalLikelihood::operator()(int n, int s){
     return condLikelihoods[s] + n*numChar*4;
-}
-
-
-int ConditionalLikelihood::swapActiveState(){
-    activeState = activeState ^ 1; // Bitwise XOR Swap
-    return activeState;
 }

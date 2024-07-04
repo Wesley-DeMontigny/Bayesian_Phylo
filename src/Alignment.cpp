@@ -42,6 +42,28 @@ Alignment::~Alignment(){
     delete [] matrix;
 }
 
+DoubleMatrix Alignment::getPairwiseIdentities(){
+    DoubleMatrix pairwiseID(numTaxa);
+
+    for(int i = 0; i < numTaxa; i++){
+        for(int j = i; j < numTaxa; j++){
+            if(i == j)
+                pairwiseID(i, j) = 1.0;
+            else{
+                double pID = 0.0;
+                for(int k = 0; k < numChar; k++)
+                    pID += matrix[i][k] == matrix[j][k]; // This implementation isn't ambiguous-character-friendly
+                
+                pID = pID/numChar;
+                pairwiseID(i, j) = pID;
+                pairwiseID(j, i) = pID;
+            }
+        }
+    }
+
+    return pairwiseID;
+}
+
 void Alignment::readNucleotideData(NxsCharactersBlock* charBlock){
     numTaxa = charBlock->GetNumActiveTaxa();
     numChar = charBlock->GetNumActiveChar();

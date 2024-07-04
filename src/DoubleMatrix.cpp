@@ -1,11 +1,5 @@
 #include "DoubleMatrix.hpp"
 
-void DoubleMatrix::initializeMatrix(int r, int c){
-    vals = new double[r*c];
-    for(int i = 0; i < r*c; i++)
-        vals[i] = 0.0;
-}
-
 DoubleMatrix::DoubleMatrix(int r, int c) : nrows(r), ncols(c){
     initializeMatrix(r, c);
 }
@@ -58,4 +52,10 @@ DoubleMatrix& DoubleMatrix::operator=(const DoubleMatrix& rhs){
     }
     memcpy(this->vals, rhs.vals, nrows*ncols*sizeof(double));
     return *this;
+}
+
+void DoubleMatrix::initializeMatrix(int r, int c){
+    vals = new double[r*c];
+    for(int i = 0; i < r*c; i++)
+        vals[i] = 0.0;
 }

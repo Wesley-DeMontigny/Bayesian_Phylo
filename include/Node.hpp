@@ -6,26 +6,37 @@
 class Node{
     public:
         Node();
+        void                addNeighbor(Node* n) {neighbors.insert(n);}
+        void                flipCL(){activeCL ^= 1;}
+        void                flipTP(){activeTP ^= 1;}
+        int                 getActiveCL(){return activeCL;}
+        int                 getActiveTP(){return activeTP;}
         Node*               getAncestor() {return ancestor;}
         void                setAncestor(Node* a) {ancestor = a;}
+        int                 getIndex() const {return index;}
+        bool                getIsTip() const {return isTip;}
+        std::string         getName() const {return name;}
+        bool                getNeedsUpdate(){return needsUpdate;}
         std::set<Node*>&    getNeighbors() {return neighbors;}
-        void                addNeighbor(Node* n) {neighbors.insert(n);}
+        int                 getOffset() const {return offset;} 
         void                removeNeighbor(Node* n) {neighbors.erase(n);}
         void                removeAllNeighbors() {neighbors.clear();}
-        int                 getOffset() const {return offset;} 
-        void                setOffset(int o){offset = o;}
-        int                 getIndex() const {return index;}
+        void                setActiveCL(int aCL){activeCL = aCL;}
+        void                setActiveTP(int aTP){activeTP = aTP;}
         void                setIndex(int i) {index = i;}
-        bool                getIsTip() const {return isTip;}
         void                setIsTip(bool t) {isTip = t;}
-        std::string         getName() const {return name;}
         void                setName(std::string s) {name = s;}
+        void                setNeedsUpdate(bool nU){needsUpdate = nU;}
+        void                setOffset(int o){offset = o;}
     private:
         Node*               ancestor;
-        std::set<Node*>     neighbors;
+        int                 activeCL;
+        int                 activeTP;
         int                 index;
         bool                isTip;
         std::string         name;
+        bool                needsUpdate;
+        std::set<Node*>     neighbors;
         int                 offset;
 };
 
