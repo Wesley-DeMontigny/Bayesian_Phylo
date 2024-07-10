@@ -40,6 +40,7 @@ double PhyloCTMC::lnLikelihood(){
             }
         }
         if(n->getNeedsCLUpdate() == true){
+            n->flipCL();
             //Get memory address of the node we are looking at and pre-set all of the likelihoods at each site to be 1.0
             double* pNN = (*condL)(n->getIndex(), n->getActiveCL());
             for(int c = 0, len=aln->getNumChar()*4; c < len; c++) 

@@ -561,6 +561,7 @@ double Tree::updateBranchLength(RandomVariable* rng){
         q = q->getAncestor();
     } 
     while(q != root);
+    root->setNeedsCLUpdate(true);
 
     return std::log(newV/currentV);
 }
