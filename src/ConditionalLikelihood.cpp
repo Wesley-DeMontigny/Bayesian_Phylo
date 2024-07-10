@@ -1,4 +1,5 @@
 #include "ConditionalLikelihood.hpp"
+#include "Alignment.hpp"
 
 ConditionalLikelihood::ConditionalLikelihood(Alignment* aln) : numNodes(aln->getNumTaxa() * 2 - 1) {
     numChar = aln->getNumChar();

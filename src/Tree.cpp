@@ -2,6 +2,7 @@
 #include "RandomVariable.hpp"
 #include "Node.hpp"
 #include "Msg.hpp"
+#include "Alignment.hpp"
 #include <iostream>
 
 /*
@@ -330,7 +331,8 @@ void Tree::clone(const Tree& t){
         p->setName(q->getName());
         p->setActiveCL(q->getActiveCL());
         p->setActiveTP(q->getActiveTP());
-        p->setNeedsUpdate(q->getNeedsUpdate());
+        p->setNeedsCLUpdate(q->getNeedsCLUpdate());
+        p->setNeedsTPUpdate(q->getNeedsTPUpdate());
 
         if(q->getAncestor() != nullptr){
             Node* ancestor = this->nodes[q->getAncestor()->getOffset()];
@@ -519,11 +521,52 @@ void Tree::showNode(Node* p, int indent) const{
         }
 }
 
+double Tree::update(){
+    RandomVariable& rng = RandomVariable::randomVariableInstance();
+
+    double updateVal = 0.0;
+
+    if(rng.uniformRv() < 1.0)
+        updateVal = updateBranchLength(&rng);
+    else
+        updateVal = updateLocal(&rng);
+
+    return updateVal;
+}
+
 void Tree::updateAll(){
     for(Node* n : nodes){
         if(n->getIsTip() == false)
-            n->setNeedsUpdate(true);
+            n->setNeedsCLUpdate(true);
+            n->setNeedsTPUpdate(true);
     }
+}
+
+double Tree::updateBranchLength(RandomVariable* rng){
+    Node* p = nullptr;
+    do{
+        p = nodes[(int)(rng->uniformRv() * nodes.size())];
+    }
+    while(p == root);
+
+    double currentV = getBranchLength(p, p->getAncestor());
+    double tuning = std::log(4.0);
+    double newV = currentV * exp(tuning * (rng->uniformRv() - 0.5));
+    setBranchLength(p, p->getAncestor(), newV);
+    p->setNeedsTPUpdate(true);
+
+    Node* q = p;
+    do{
+        q->setNeedsCLUpdate(true);
+        q = q->getAncestor();
+    } 
+    while(q != root);
+
+    return std::log(newV/currentV);
+}
+
+double Tree::updateLocal(RandomVariable* rng){
+    return 0.0;
 }
 
 //For outputting a newick string
