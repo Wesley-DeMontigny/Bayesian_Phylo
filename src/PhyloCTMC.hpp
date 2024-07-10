@@ -1,10 +1,10 @@
 #ifndef PHYLO_CTMC_HPP
 #define PHYLO_CTMC_HPP
 #include "AbstractDistribution.hpp"
+#include "Tree.hpp"
 
 class ConditionalLikelihood;
 class TransitionProbability;
-class Tree;
 class Alignment;
 class RandomVariable;
 
@@ -18,6 +18,7 @@ class PhyloCTMC : public AbstractDistribution{
         double update();
         void accept();
         void reject();
+        Tree getActiveTree(){return *tree[0];}
     private:
         Alignment* aln;
         ConditionalLikelihood* condL;

@@ -33,6 +33,7 @@ class Tree : public AbstractParameter {
         std::vector<Node*>  getTips();
         void                print(void) const;
         void                print(std::string header) const;
+        void                removeBranchLength(Node* p1, Node* p2);
         double              update();
         void                updateAll();
         
@@ -53,6 +54,7 @@ class Tree : public AbstractParameter {
         void                showNode(Node* p, int indent) const;
         double              updateBranchLength(RandomVariable* rng);
         double              updateLocal(RandomVariable* rng);
+        double              updateNNI(RandomVariable* rng);
         void                writeNode(Node* p, std::stringstream& strm) const;
 };
 

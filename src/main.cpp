@@ -1,6 +1,7 @@
 #include <iostream>
 #include "RandomVariable.hpp"
 #include "Alignment.hpp"
+#include "Tree.hpp"
 #include "PhyloCTMC.hpp"
 #include "Mcmc.hpp"
 #include "lua.hpp"
@@ -17,15 +18,23 @@ int main(int argc, char* argv[]) {
         .beginClass<Alignment>("Alignment")
             .addConstructor<void(std::string)>()
         .endClass()
+        .beginClass<Tree>("Tree")
+            .addFunction("getNewick", &Tree::getNewick)
+        .endClass()
         .beginClass<PhyloCTMC>("PhyloCTMC")
             .addConstructor<void(Alignment*)>()
+            .addFunction("getTree", &PhyloCTMC::getActiveTree)
         .endClass()
         .beginClass<Mcmc>("Mcmc")
             .addConstructor<void(int, int, int, PhyloCTMC*)>()
             .addFunction("run", &Mcmc::run)
         .endClass();
 
-    luaL_dofile(L, "C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/Test.lua");
+    const char* script = "C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/Test.lua";
+
+    if (luaL_dofile(L, script)) {
+        fprintf(stderr, "Error: %s\n", lua_tostring(L, -1));
+    }
 
     lua_close(L);
 

@@ -7,7 +7,7 @@
 
 /*
 =======================================================================
-                        TREE CONSTRUCTORS/DESTRUCTORS
+                    TREE CONSTRUCTORS/DESTRUCTORS
 =======================================================================
 */
 
@@ -344,7 +344,7 @@ void Tree::clone(const Tree& t){
             p->setAncestor(nullptr);
 
         p->removeAllNeighbors();
-        std::set<Node*>& qNeighbors = q->getNeighbors();
+        std::vector<Node*>& qNeighbors = q->getNeighbors();
         for(Node* n : qNeighbors)
             p->addNeighbor(this->nodes[n->getOffset()]);
     }
@@ -462,7 +462,7 @@ void Tree::passDown(Node* p, Node* fromNode) {
     if(p == nullptr)
         return;
     
-    std::set<Node*>& pNeighbors = p->getNeighbors();
+    std::vector<Node*>& pNeighbors = p->getNeighbors();
 
     for(Node* n : pNeighbors)
         {
@@ -486,6 +486,15 @@ void Tree::print(void) const{
     showNode(root, 0);
 }
 
+void Tree::removeBranchLength(Node* p1, Node* p2){
+    std::pair<Node*, Node*> key;
+    if(p1 < p2)
+        key = std::make_pair(p1,p2);
+    else
+        key = std::make_pair(p2, p1);
+    branchLengths.erase(key);
+}
+
 //Output nodes of the tree in a whitespace-indented format
 void Tree::showNode(Node* p, int indent) const{
 
@@ -496,7 +505,7 @@ void Tree::showNode(Node* p, int indent) const{
         std::cout << " ";
 
     std::cout << p->getIndex() << " ( ";
-    std::set<Node*>& pNeighbors = p->getNeighbors();
+    std::vector<Node*>& pNeighbors = p->getNeighbors();
     for (Node* d : pNeighbors)
         {
         if (d == p->getAncestor())
@@ -526,10 +535,10 @@ double Tree::update(){
 
     double updateVal = 0.0;
 
-    if(rng.uniformRv() < 1.0)
+    if(rng.uniformRv() < 0.5)
         updateVal = updateBranchLength(&rng);
     else
-        updateVal = updateLocal(&rng);
+        updateVal = updateNNI(&rng);
 
     return updateVal;
 }
@@ -570,6 +579,58 @@ double Tree::updateLocal(RandomVariable* rng){
     return 0.0;
 }
 
+
+double Tree::updateNNI(RandomVariable* rng){
+    Node* p = nullptr;
+    do{
+        p = nodes[(int)(rng->uniformRv() * nodes.size())];
+    }
+    while(p == root || p->getIsTip() == true);
+
+    Node* a = p->getAncestor();
+
+    Node* n1 = nullptr;
+    std::vector<Node*> neighbors1 = p->getNeighbors();
+    do{
+        n1 = neighbors1[(int)(rng->uniformRv() * neighbors1.size())];
+    }
+    while(n1 == a);
+
+    Node* n2 = nullptr;
+    std::vector<Node*> neighbors2 = a->getNeighbors();
+    do{
+        n2 = neighbors2[(int)(rng->uniformRv() * neighbors2.size())];
+    }
+    while(n2 == p || n2 == a->getAncestor());
+
+    
+
+    //Add new neighbors and keep branch lengths
+    double l1 = getBranchLength(p, n1);
+    double l2 = getBranchLength(a, n2);
+    n1->addNeighbor(a);
+    a->addNeighbor(n1);
+    n1->setAncestor(a);
+    n2->addNeighbor(p);
+    p->addNeighbor(n2);
+    n2->setAncestor(p);
+    setBranchLength(a, n1, l1);
+    setBranchLength(p, n2, l2);
+
+    //Remove old connections
+    n1->removeNeighbor(p);
+    p->removeNeighbor(n1);
+    n2->removeNeighbor(a);
+    a->removeNeighbor(n2);
+    removeBranchLength(n1, p);
+    removeBranchLength(n2, a);
+
+    initPostOrder();
+
+    return 0.0;
+}
+
+
 //For outputting a newick string
 void Tree::writeNode(Node* p, std::stringstream& strm) const{
     if(p == nullptr)
@@ -580,7 +641,7 @@ void Tree::writeNode(Node* p, std::stringstream& strm) const{
     else
         strm << p->getName();
 
-    std::set<Node*>& pDesc = p->getNeighbors();
+    std::vector<Node*>& pDesc = p->getNeighbors();
     bool foundFirst = false;
     for(Node* n : pDesc){
         if(n != p->getAncestor()){

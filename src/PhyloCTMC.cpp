@@ -46,7 +46,7 @@ double PhyloCTMC::lnLikelihood(){
             for(int c = 0, len=aln->getNumChar()*4; c < len; c++) 
                 pNN[c] = 1.0;
 
-            std::set<Node*>& nNeighbors = n->getNeighbors();
+            std::vector<Node*>& nNeighbors = n->getNeighbors();
             //Iterate over the descendents (usually only two)
             for(Node* d : nNeighbors){
                 if(d != n->getAncestor()){

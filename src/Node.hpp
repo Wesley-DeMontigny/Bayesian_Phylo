@@ -1,12 +1,12 @@
 #ifndef NODE_HPP
 #define NODE_HPP
-#include <set>
+#include <vector>
 #include <string>
 
 class Node{
     public:
         Node();
-        void                addNeighbor(Node* n) {neighbors.insert(n);}
+        void                addNeighbor(Node* n) {neighbors.push_back(n);}
         void                flipCL(){activeCL ^= 1;}
         void                flipTP(){activeTP ^= 1;}
         int                 getActiveCL(){return activeCL;}
@@ -18,9 +18,9 @@ class Node{
         std::string         getName() const {return name;}
         bool                getNeedsCLUpdate(){return needsCLUpdate;}
         bool                getNeedsTPUpdate(){return needsTPUpdate;}
-        std::set<Node*>&    getNeighbors() {return neighbors;}
+        std::vector<Node*>&    getNeighbors() {return neighbors;}
         int                 getOffset() const {return offset;} 
-        void                removeNeighbor(Node* n) {neighbors.erase(n);}
+        void                removeNeighbor(Node* n) {neighbors.erase(std::remove(neighbors.begin(), neighbors.end(), n), neighbors.end());}
         void                removeAllNeighbors() {neighbors.clear();}
         void                setActiveCL(int aCL){activeCL = aCL;}
         void                setActiveTP(int aTP){activeTP = aTP;}
@@ -39,7 +39,7 @@ class Node{
         std::string         name;
         bool                needsCLUpdate;
         bool                needsTPUpdate;
-        std::set<Node*>     neighbors;
+        std::vector<Node*>     neighbors;
         int                 offset;
 };
 
