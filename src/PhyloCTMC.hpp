@@ -12,13 +12,14 @@ class PhyloCTMC : public AbstractDistribution{
     public:
         PhyloCTMC(void) = delete;
         PhyloCTMC(Alignment* a);
+        PhyloCTMC(Alignment* a, Tree* t);
         ~PhyloCTMC();
+        void accept();
+        Tree getActiveTree(){return *tree[0];}
         double lnLikelihood();
         double lnPrior();
-        double update();
-        void accept();
         void reject();
-        Tree getActiveTree(){return *tree[0];}
+        double update();
     private:
         Alignment* aln;
         ConditionalLikelihood* condL;

@@ -15,11 +15,10 @@ class Tree : public AbstractParameter {
 
     public:
                             Tree(void) = delete;
-                            Tree(RandomVariable* rng, int nt);
-                            Tree(RandomVariable* rng, Alignment* aln);
+                            Tree(int nt);
+                            Tree(Alignment* aln);
                             Tree(const Tree& t);
-                            Tree(RandomVariable* rng, double lambda, double mu, double duration);
-                            Tree(Alignment* aln, std::string method);
+                            Tree(double lambda, double mu, double duration);
                             Tree(std::string newick, std::vector<std::string> taxaNames);
                            ~Tree(void);
         Tree&               operator=(const Tree& rhs);
@@ -28,6 +27,7 @@ class Tree : public AbstractParameter {
         void                setBranchLength(Node* p1, Node* p2, double length);
         double              getBranchLength(Node* p1, Node* p2) const;
         std::string         getNewick() const;
+        int                 getNumTaxa(){return numTaxa;}
         std::vector<Node*>& getPostOrderSeq() {return postOrderSeq;}
         Node*               getRoot() {return root;}
         std::vector<Node*>  getTips();
@@ -40,7 +40,7 @@ class Tree : public AbstractParameter {
     private:
         Node*               addNode(void);
         std::map<std::pair<Node*, Node*>, double> branchLengths;
-        Node*               chooseNodeFromSet(std::set<Node*>& s, RandomVariable* rng);
+        Node*               chooseNodeFromSet(std::set<Node*>& s);
         void                clone(const Tree& t);
         void                deleteAllNodes();
         int                 getTaxonIndex(std::string token, std::vector<std::string> taxaNames);
@@ -52,9 +52,9 @@ class Tree : public AbstractParameter {
         std::vector<Node*>  postOrderSeq;
         Node*               root;
         void                showNode(Node* p, int indent) const;
-        double              updateBranchLength(RandomVariable* rng);
-        double              updateLocal(RandomVariable* rng);
-        double              updateNNI(RandomVariable* rng);
+        double              updateBranchLength();
+        double              updateLocal();
+        double              updateNNI();
         void                writeNode(Node* p, std::stringstream& strm) const;
 };
 

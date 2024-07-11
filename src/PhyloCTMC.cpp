@@ -5,7 +5,9 @@
 #include "TransitionProbability.hpp"
 #include "Node.hpp"
 #include "Tree.hpp"
+#include "Msg.hpp"
 #include <cmath>
+#include <string>
 
 PhyloCTMC::PhyloCTMC(Alignment* a) : aln(a) {
 
@@ -13,7 +15,53 @@ PhyloCTMC::PhyloCTMC(Alignment* a) : aln(a) {
 
     condL = new ConditionalLikelihood(aln);
     transProb = new TransitionProbability(2 * aln->getNumTaxa() - 1);
-    tree[0] = new Tree(rng, aln);
+    tree[0] = new Tree(aln);
+    tree[1] = new Tree(*tree[0]);
+
+    tree[0]->updateAll();
+    double lnL = lnLikelihood();
+}
+
+PhyloCTMC::PhyloCTMC(Alignment* a, Tree* t) : aln(a) {
+
+    if(aln->getNumTaxa() != t->getNumTaxa())
+        Msg::error("Error: Expected " + std::to_string(aln->getNumTaxa()) + 
+        "taxa in the tree, but found only " + std::to_string(t->getNumTaxa()));
+    
+    tree[0] = new Tree(*t);
+
+    //We need to do some setting to make sure the alignment and tree match
+    std::vector<std::string> taxaNames = aln->getTaxaNames();
+    bool randomAssign = false;
+    for(Node* n : tree[0]->getTips()){
+        bool found = false;
+        std::string name = n->getName();
+        for(int i = 0; i < taxaNames.size(); i++){
+            if(name == taxaNames[i]){
+                found=true;
+                n->setIndex(i);
+                break;
+            }
+        }
+
+        if(found == false){
+            Msg::warning("Warning: Expected to find a tip named " + name + "! Assigning indices and names randomly.");
+            randomAssign = true;
+            break;
+        }
+    }
+
+    //Set the tips randomly if the tips are not properly named
+    if(randomAssign == true){
+        std::vector<Node*> tips = tree[0]->getTips();
+        for(int i = 0; i < taxaNames.size(); i++){
+            tips[i]->setIndex(i);
+            tips[i]->setName(taxaNames[i]);
+        }
+    }
+
+    condL = new ConditionalLikelihood(aln);
+    transProb = new TransitionProbability(2 * aln->getNumTaxa() - 1);
     tree[1] = new Tree(*tree[0]);
 
     tree[0]->updateAll();
@@ -46,7 +94,7 @@ double PhyloCTMC::lnLikelihood(){
             for(int c = 0, len=aln->getNumChar()*4; c < len; c++) 
                 pNN[c] = 1.0;
 
-            std::vector<Node*>& nNeighbors = n->getNeighbors();
+            std::set<Node*>& nNeighbors = n->getNeighbors();
             //Iterate over the descendents (usually only two)
             for(Node* d : nNeighbors){
                 if(d != n->getAncestor()){

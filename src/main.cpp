@@ -6,6 +6,7 @@
 #include "Mcmc.hpp"
 #include "lua.hpp"
 #include "LuaBridge/LuaBridge.h"
+#include "LuaBridge/Vector.h"
 
 int main(int argc, char* argv[]) {
 
@@ -17,12 +18,19 @@ int main(int argc, char* argv[]) {
     luabridge::getGlobalNamespace(L)
         .beginClass<Alignment>("Alignment")
             .addConstructor<void(std::string)>()
+            .addFunction("getTaxaNames", &Alignment::getTaxaNames)
         .endClass()
         .beginClass<Tree>("Tree")
+            .addConstructor<
+            void(int), 
+            void(std::string, std::vector<std::string>),
+            void(double, double, double)
+            >()
             .addFunction("getNewick", &Tree::getNewick)
+            .addFunction("getNumTaxa", &Tree::getNumTaxa)
         .endClass()
         .beginClass<PhyloCTMC>("PhyloCTMC")
-            .addConstructor<void(Alignment*)>()
+            .addConstructor<void(Alignment*), void(Alignment*, Tree*)>()
             .addFunction("getTree", &PhyloCTMC::getActiveTree)
         .endClass()
         .beginClass<Mcmc>("Mcmc")
