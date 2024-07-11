@@ -1,0 +1,57 @@
+#include "MoveTreeNNI.hpp"
+#include "TreeObject.hpp"
+#include "RandomVariable.hpp"
+#include "Node.hpp"
+
+MoveTreeNNI::MoveTreeNNI(TreeParameter* t) : param(t) {}
+        
+double MoveTreeNNI::update(){
+
+    TreeObject* tree = param->getValue();
+    std::vector<Node*> nodes = tree->getPostOrderSeq();
+    Node* root = tree->getRoot();
+
+    RandomVariable& rng = RandomVariable::randomVariableInstance();
+
+    Node* p = nullptr;
+    do{
+        p = nodes[(int)(rng.uniformRv() * nodes.size())];
+    }
+    while(p == root || p->getIsTip() == true);
+
+    Node* a = p->getAncestor();
+
+    std::set<Node*> neighbors1 = p->getNeighbors();
+    neighbors1.erase(a);//Exclude a
+    Node* n1 = Node::chooseNodeFromSet(neighbors1);
+
+    //Is it technically correct to exclude the ancestor of a?
+    std::set<Node*> neighbors2 = a->getNeighbors();
+    neighbors2.erase(p);//Don't select p
+    neighbors2.erase(a->getAncestor());//Don't select ancestor
+    Node* n2 = Node::chooseNodeFromSet(neighbors2);
+
+    //Add new neighbors and keep branch lengths
+    double l1 = tree->getBranchLength(p, n1);
+    double l2 = tree->getBranchLength(a, n2);
+    n1->addNeighbor(a);
+    a->addNeighbor(n1);
+    n1->setAncestor(a);
+    n2->addNeighbor(p);
+    p->addNeighbor(n2);
+    n2->setAncestor(p);
+    tree->setBranchLength(a, n1, l1);
+    tree->setBranchLength(p, n2, l2);
+
+    //Remove old connections
+    n1->removeNeighbor(p);
+    p->removeNeighbor(n1);
+    n2->removeNeighbor(a);
+    a->removeNeighbor(n2);
+    tree->removeBranchLength(n1, p);
+    tree->removeBranchLength(n2, a);
+
+    tree->initPostOrder();
+
+    return 0.0;
+}

@@ -3,7 +3,6 @@
 
 class Alignment;
 class Node;
-class Tree;
 
 class ConditionalLikelihood{
     public:

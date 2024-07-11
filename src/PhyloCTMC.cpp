@@ -1,39 +1,27 @@
 #include "PhyloCTMC.hpp"
 #include "RandomVariable.hpp"
 #include "Alignment.hpp"
+#include "Msg.hpp"
 #include "ConditionalLikelihood.hpp"
 #include "TransitionProbability.hpp"
 #include "Node.hpp"
-#include "Tree.hpp"
-#include "Msg.hpp"
+#include "TreeObject.hpp"
+#include "TreeParameter.hpp"
 #include <cmath>
 #include <string>
 
-PhyloCTMC::PhyloCTMC(Alignment* a) : aln(a) {
+PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t) {
 
-    rng = &RandomVariable::randomVariableInstance();
+    TreeObject* activeT = tree->getValue();
 
-    condL = new ConditionalLikelihood(aln);
-    transProb = new TransitionProbability(2 * aln->getNumTaxa() - 1);
-    tree[0] = new Tree(aln);
-    tree[1] = new Tree(*tree[0]);
-
-    tree[0]->updateAll();
-    double lnL = lnLikelihood();
-}
-
-PhyloCTMC::PhyloCTMC(Alignment* a, Tree* t) : aln(a) {
-
-    if(aln->getNumTaxa() != t->getNumTaxa())
+    if(aln->getNumTaxa() != activeT->getNumTaxa())
         Msg::error("Error: Expected " + std::to_string(aln->getNumTaxa()) + 
-        "taxa in the tree, but found only " + std::to_string(t->getNumTaxa()));
-    
-    tree[0] = new Tree(*t);
+        "taxa in the tree, but found only " + std::to_string(activeT->getNumTaxa()));
 
     //We need to do some setting to make sure the alignment and tree match
     std::vector<std::string> taxaNames = aln->getTaxaNames();
     bool randomAssign = false;
-    for(Node* n : tree[0]->getTips()){
+    for(Node* n : activeT->getTips()){
         bool found = false;
         std::string name = n->getName();
         for(int i = 0; i < taxaNames.size(); i++){
@@ -53,18 +41,19 @@ PhyloCTMC::PhyloCTMC(Alignment* a, Tree* t) : aln(a) {
 
     //Set the tips randomly if the tips are not properly named
     if(randomAssign == true){
-        std::vector<Node*> tips = tree[0]->getTips();
+        std::vector<Node*> tips = activeT->getTips();
         for(int i = 0; i < taxaNames.size(); i++){
             tips[i]->setIndex(i);
             tips[i]->setName(taxaNames[i]);
         }
     }
 
+    tree->accept(); //Accept the tip changes into memory (if any happened)
+
     condL = new ConditionalLikelihood(aln);
     transProb = new TransitionProbability(2 * aln->getNumTaxa() - 1);
-    tree[1] = new Tree(*tree[0]);
 
-    tree[0]->updateAll();
+    activeT->updateAll();
     double lnL = lnLikelihood();
 }
 
@@ -76,13 +65,15 @@ PhyloCTMC::~PhyloCTMC(){
 
 double PhyloCTMC::lnLikelihood(){
 
-    std::vector<Node*>&  dpSeq = tree[0]->getPostOrderSeq();
+    TreeObject* activeT = tree->getValue();
+
+    std::vector<Node*>&  dpSeq = activeT->getPostOrderSeq();
     for(Node* n : dpSeq){
         //Only update the conditional likelihoods if the node has changed
         if(n->getNeedsTPUpdate() == true){
             n->flipTP();
-            if(n != tree[0]->getRoot()){
-                double v = tree[0]->getBranchLength(n, n->getAncestor());
+            if(n != activeT->getRoot()){
+                double v = activeT->getBranchLength(n, n->getAncestor());
                 transProb->set(n->getActiveTP(), n->getIndex(), v);
                 n->setNeedsTPUpdate(false);
             }
@@ -126,7 +117,7 @@ double PhyloCTMC::lnLikelihood(){
     }
     
     //Calculate the likelihood of the tree by summing up the likelihood at the root.
-    double* pR = (*condL)(tree[0]->getRoot()->getIndex(), tree[0]->getRoot()->getActiveCL());
+    double* pR = (*condL)(activeT->getRoot()->getIndex(), activeT->getRoot()->getActiveCL());
     std::vector<double>& f = transProb->getStationaryFreq();
     double lnL = 0.0;
 
@@ -139,20 +130,4 @@ double PhyloCTMC::lnLikelihood(){
     }
 
     return lnL;
-}
-
-double PhyloCTMC::lnPrior(){
-    return 0.0;
-}
-
-double PhyloCTMC::update(){
-    return tree[0]->update();
-}
-
-void PhyloCTMC::accept(){
-    *tree[1] = *tree[0];
-}
-
-void PhyloCTMC::reject(){
-    *tree[0] = *tree[1];
 }

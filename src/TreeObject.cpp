@@ -1,9 +1,10 @@
-#include "Tree.hpp"
+#include "TreeObject.hpp"
 #include "RandomVariable.hpp"
 #include "Node.hpp"
 #include "Msg.hpp"
 #include "Alignment.hpp"
 #include <iostream>
+#include <cmath>
 
 /*
 =======================================================================
@@ -11,7 +12,7 @@
 =======================================================================
 */
 
-Tree::Tree(int nt) : numTaxa(nt) {
+TreeObject::TreeObject(int nt) : numTaxa(nt) {
 
     RandomVariable& rng = RandomVariable::randomVariableInstance();
 
@@ -82,7 +83,7 @@ Tree::Tree(int nt) : numTaxa(nt) {
 }
 
 //Generate a random tree and connect it to an alignment
-Tree::Tree(Alignment* aln) : Tree(aln->getNumTaxa()) {
+TreeObject::TreeObject(Alignment* aln) : TreeObject(aln->getNumTaxa()) {
 
     std::vector<std::string> names = aln->getTaxaNames();
     for(Node* n : postOrderSeq){
@@ -93,7 +94,7 @@ Tree::Tree(Alignment* aln) : Tree(aln->getNumTaxa()) {
 }
 
 //Change to match index to taxon name
-Tree::Tree(std::string newick, std::vector<std::string> taxaNames){
+TreeObject::TreeObject(std::string newick, std::vector<std::string> taxaNames){
     std::vector<std::string> tokens = parseNewickString(newick);
 
     Node* p = nullptr;
@@ -173,7 +174,7 @@ Tree::Tree(std::string newick, std::vector<std::string> taxaNames){
     }
 }
 
-Tree::Tree(const Tree& t){
+TreeObject::TreeObject(const TreeObject& t){
     clone(t);
 }
 
@@ -199,7 +200,7 @@ The algorithm here is pretty simple:
    speciation probability. Pick a random non-dead branch and split it.
 4. If the event corresponds with death, kill off the branch.
 */
-Tree::Tree(double lambda, double mu, double duration){
+TreeObject::TreeObject(double lambda, double mu, double duration){
 
     RandomVariable& rng = RandomVariable::randomVariableInstance();
 
@@ -231,7 +232,7 @@ Tree::Tree(double lambda, double mu, double duration){
         t += rng.exponentialRv(rate);
 
         if(t < duration){
-            Node* selectedP = chooseNodeFromSet(activeNodes);
+            Node* selectedP = Node::chooseNodeFromSet(activeNodes);
 
             double u = rng.uniformRv();
             if(u < lambda / (lambda+mu)){
@@ -286,12 +287,12 @@ Tree::Tree(double lambda, double mu, double duration){
     }
 }
 
-Tree::~Tree(void) {
+TreeObject::~TreeObject(void) {
     deleteAllNodes();
 }
 
 //Deep Copy Operation
-Tree& Tree::operator=(const Tree& rhs){
+TreeObject& TreeObject::operator=(const TreeObject& rhs){
     if(this == &rhs)
         return *this;
     
@@ -305,7 +306,7 @@ Tree& Tree::operator=(const Tree& rhs){
 =======================================================================
 */
 
-Node* Tree::addNode(void) {
+Node* TreeObject::addNode(void) {
 
     Node* newNode = new Node;
     newNode->setOffset((int)nodes.size());
@@ -313,21 +314,7 @@ Node* Tree::addNode(void) {
     return newNode;
 }
 
-Node* Tree::chooseNodeFromSet(std::set<Node*>& s){
-    RandomVariable& rng = RandomVariable::randomVariableInstance();
-
-    double rand = rng.uniformRv();
-    int whichNode = (int)(s.size() * rand);
-    int i = 0;
-    for(Node* n : s){
-        if(whichNode == i)
-            return n;
-        i++;
-    }
-    return nullptr;
-}
-
-void Tree::clone(const Tree& t){
+void TreeObject::clone(const TreeObject& t){
     if(nodes.size() != t.nodes.size()){
         deleteAllNodes();
         for(int i = 0; i < t.nodes.size(); i++)
@@ -370,25 +357,25 @@ void Tree::clone(const Tree& t){
     }
 }
 
-void Tree::deleteAllNodes(){
+void TreeObject::deleteAllNodes(){
     for (int i = 0; i < nodes.size(); i++)
         delete nodes[i];
     nodes.clear();
 }
 
-void Tree::flipAllCLs(){
+void TreeObject::flipAllCLs(){
     for(Node* n : nodes){
         n->flipCL();
     }
 }
 
-void Tree::flipAllTPs(){
+void TreeObject::flipAllTPs(){
     for(Node* n : nodes){
         n->flipTP();
     }
 }
 
-void Tree::setBranchLength(Node* p1, Node* p2, double length){
+void TreeObject::setBranchLength(Node* p1, Node* p2, double length){
     std::pair<Node*, Node*> key;
     if(p1 < p2)
         key = std::make_pair(p1,p2);
@@ -402,7 +389,7 @@ void Tree::setBranchLength(Node* p1, Node* p2, double length){
         it->second = length;
 }
 
-double Tree::getBranchLength(Node* p1, Node* p2) const{
+double TreeObject::getBranchLength(Node* p1, Node* p2) const{
     std::pair<Node*, Node*> key;
     if(p1 < p2)
         key = std::make_pair(p1,p2);
@@ -415,14 +402,14 @@ double Tree::getBranchLength(Node* p1, Node* p2) const{
     return it->second;
 }
 
-std::string Tree::getNewick() const{
+std::string TreeObject::getNewick() const{
     std::stringstream strm;
     writeNode(root, strm);
     strm << ";";
     return strm.str();
 }
 
-std::vector<Node*> Tree::getTips() {
+std::vector<Node*> TreeObject::getTips() {
     std::vector<Node*> out;
     out.reserve(numTaxa);
 
@@ -434,7 +421,7 @@ std::vector<Node*> Tree::getTips() {
     return out;
 }
 
-int Tree::getTaxonIndex(std::string token, std::vector<std::string> taxaNames){
+int TreeObject::getTaxonIndex(std::string token, std::vector<std::string> taxaNames){
 
     for(int i = 0, n = taxaNames.size(); i < n; i++){
         if(taxaNames[i] == token)
@@ -444,13 +431,13 @@ int Tree::getTaxonIndex(std::string token, std::vector<std::string> taxaNames){
     return -1;
 }
 
-void Tree::initPostOrder(void) {
+void TreeObject::initPostOrder(void) {
 
     postOrderSeq.clear();
     passDown(root, root);
 }
 
-std::vector<std::string> Tree::parseNewickString(std::string newick){
+std::vector<std::string> TreeObject::parseNewickString(std::string newick){
     std::vector<std::string> tokens;
     std::string str = "";
     for(int i = 0; i < newick.length(); i++){
@@ -471,7 +458,7 @@ std::vector<std::string> Tree::parseNewickString(std::string newick){
     return tokens;
 }
 
-void Tree::passDown(Node* p, Node* fromNode) {
+void TreeObject::passDown(Node* p, Node* fromNode) {
 
     if(p == nullptr)
         return;
@@ -490,17 +477,17 @@ void Tree::passDown(Node* p, Node* fromNode) {
     postOrderSeq.push_back(p);
 }
 
-void Tree::print(std::string header) const{
+void TreeObject::print(std::string header) const{
     std::cout << header << std::endl;
     print();
 }
 
-void Tree::print(void) const{
+void TreeObject::print(void) const{
 
     showNode(root, 0);
 }
 
-void Tree::removeBranchLength(Node* p1, Node* p2){
+void TreeObject::removeBranchLength(Node* p1, Node* p2){
     std::pair<Node*, Node*> key;
     if(p1 < p2)
         key = std::make_pair(p1,p2);
@@ -510,7 +497,7 @@ void Tree::removeBranchLength(Node* p1, Node* p2){
 }
 
 //Output nodes of the tree in a whitespace-indented format
-void Tree::showNode(Node* p, int indent) const{
+void TreeObject::showNode(Node* p, int indent) const{
 
     if(p == nullptr)
         return;
@@ -544,20 +531,7 @@ void Tree::showNode(Node* p, int indent) const{
         }
 }
 
-double Tree::update(){
-    RandomVariable& rng = RandomVariable::randomVariableInstance();
-
-    double updateVal = 0.0;
-
-    if(rng.uniformRv() < 0.5)
-        updateVal = updateBranchLength();
-    else
-        updateVal = updateNNI();
-
-    return updateVal;
-}
-
-void Tree::updateAll(){
+void TreeObject::updateAll(){
     for(Node* n : nodes){
         if(n->getIsTip() == false)
             n->setNeedsCLUpdate(true);
@@ -565,87 +539,8 @@ void Tree::updateAll(){
     }
 }
 
-double Tree::updateBranchLength(){
-    RandomVariable& rng = RandomVariable::randomVariableInstance();
-
-    Node* p = nullptr;
-    do{
-        p = nodes[(int)(rng.uniformRv() * nodes.size())];
-    }
-    while(p == root);
-
-    double currentV = getBranchLength(p, p->getAncestor());
-    double tuning = std::log(4.0);
-    double newV = currentV * exp(tuning * (rng.uniformRv() - 0.5));
-    setBranchLength(p, p->getAncestor(), newV);
-    p->setNeedsTPUpdate(true);
-
-    Node* q = p;
-    do{
-        q->setNeedsCLUpdate(true);
-        q = q->getAncestor();
-    } 
-    while(q != root);
-    root->setNeedsCLUpdate(true);
-
-    return std::log(newV/currentV);
-}
-
-double Tree::updateLocal(){
-    RandomVariable& rng = RandomVariable::randomVariableInstance();
-    return 0.0;
-}
-
-
-double Tree::updateNNI(){
-    RandomVariable& rng = RandomVariable::randomVariableInstance();
-
-    Node* p = nullptr;
-    do{
-        p = nodes[(int)(rng.uniformRv() * nodes.size())];
-    }
-    while(p == root || p->getIsTip() == true);
-
-    Node* a = p->getAncestor();
-
-    std::set<Node*> neighbors1 = p->getNeighbors();
-    neighbors1.erase(a);//Exclude a
-    Node* n1 = chooseNodeFromSet(neighbors1);
-
-    //Is it technically correct to exclude the ancestor of a?
-    std::set<Node*> neighbors2 = a->getNeighbors();
-    neighbors2.erase(p);//Don't select p
-    neighbors2.erase(a->getAncestor());//Don't select ancestor
-    Node* n2 = chooseNodeFromSet(neighbors2);
-
-    //Add new neighbors and keep branch lengths
-    double l1 = getBranchLength(p, n1);
-    double l2 = getBranchLength(a, n2);
-    n1->addNeighbor(a);
-    a->addNeighbor(n1);
-    n1->setAncestor(a);
-    n2->addNeighbor(p);
-    p->addNeighbor(n2);
-    n2->setAncestor(p);
-    setBranchLength(a, n1, l1);
-    setBranchLength(p, n2, l2);
-
-    //Remove old connections
-    n1->removeNeighbor(p);
-    p->removeNeighbor(n1);
-    n2->removeNeighbor(a);
-    a->removeNeighbor(n2);
-    removeBranchLength(n1, p);
-    removeBranchLength(n2, a);
-
-    initPostOrder();
-
-    return 0.0;
-}
-
-
 //For outputting a newick string
-void Tree::writeNode(Node* p, std::stringstream& strm) const{
+void TreeObject::writeNode(Node* p, std::stringstream& strm) const{
     if(p == nullptr)
         return;
     

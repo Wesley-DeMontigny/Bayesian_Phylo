@@ -3,7 +3,8 @@
 
 class AbstractParameter{
     public:
-        virtual double update()=0;
+        virtual void accept()=0;
+        virtual void reject()=0;
     private:
 };
 

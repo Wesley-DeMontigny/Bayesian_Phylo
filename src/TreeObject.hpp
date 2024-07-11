@@ -1,50 +1,47 @@
-#ifndef TREE_HPP
-#define TREE_HPP
+#ifndef TREE_OBJECT_HPP
+#define TREE_OBJECT_HPP
 #include <vector>
 #include <string>
 #include <sstream>
 #include <map>
 #include <set>
-#include "AbstractParameter.hpp"
 
 class Node;
 class Alignment;
 class RandomVariable;
 
-class Tree : public AbstractParameter {
+class TreeObject {
 
     public:
-                            Tree(void) = delete;
-                            Tree(int nt);
-                            Tree(Alignment* aln);
-                            Tree(const Tree& t);
-                            Tree(double lambda, double mu, double duration);
-                            Tree(std::string newick, std::vector<std::string> taxaNames);
-                           ~Tree(void);
-        Tree&               operator=(const Tree& rhs);
+                            TreeObject(void) = delete;
+                            TreeObject(int nt);
+                            TreeObject(Alignment* aln);
+                            TreeObject(const TreeObject& t);
+                            TreeObject(double lambda, double mu, double duration);
+                            TreeObject(std::string newick, std::vector<std::string> taxaNames);
+                           ~TreeObject(void);
+        TreeObject&               operator=(const TreeObject& rhs);
         void                flipAllTPs();
         void                flipAllCLs();
-        void                setBranchLength(Node* p1, Node* p2, double length);
         double              getBranchLength(Node* p1, Node* p2) const;
         std::string         getNewick() const;
         int                 getNumTaxa(){return numTaxa;}
         std::vector<Node*>& getPostOrderSeq() {return postOrderSeq;}
         Node*               getRoot() {return root;}
         std::vector<Node*>  getTips();
+        void                initPostOrder(void);
         void                print(void) const;
         void                print(std::string header) const;
         void                removeBranchLength(Node* p1, Node* p2);
-        double              update();
+        void                setBranchLength(Node* p1, Node* p2, double length);
         void                updateAll();
         
     private:
         Node*               addNode(void);
         std::map<std::pair<Node*, Node*>, double> branchLengths;
-        Node*               chooseNodeFromSet(std::set<Node*>& s);
-        void                clone(const Tree& t);
+        void                clone(const TreeObject& t);
         void                deleteAllNodes();
         int                 getTaxonIndex(std::string token, std::vector<std::string> taxaNames);
-        void                initPostOrder(void);
         std::vector<Node*>  nodes;
         int                 numTaxa;
         std::vector<std::string> parseNewickString(std::string newick);
@@ -52,9 +49,6 @@ class Tree : public AbstractParameter {
         std::vector<Node*>  postOrderSeq;
         Node*               root;
         void                showNode(Node* p, int indent) const;
-        double              updateBranchLength();
-        double              updateLocal();
-        double              updateNNI();
         void                writeNode(Node* p, std::stringstream& strm) const;
 };
 
