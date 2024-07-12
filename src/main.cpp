@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
 
     RandomVariable& rv = RandomVariable::randomVariableInstance();
 
+    /*
     Alignment aln("C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/primates_and_galeopterus_cytb.nex");
 
     TreeObject treeObj(&aln);
@@ -34,8 +35,8 @@ int main(int argc, char* argv[]) {
 
     Mcmc myMCMC(100, 1, 1, &model, &priorD, &moveScheduler);
     myMCMC.run();
-    
-    /*
+    */
+
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
 
@@ -71,6 +72,7 @@ int main(int argc, char* argv[]) {
         .endClass()
         .deriveClass<PhyloCTMC, AbstractDistribution>("PhyloCTMC")
             .addConstructor<void(Alignment*, TreeParameter*)>()
+            .addFunction("lnLikelihood", &PhyloCTMC::lnLikelihood)
         .endClass()
         .deriveClass<FlatPrior, AbstractDistribution>("FlatPrior")
             .addConstructor<void(void)>()
@@ -87,5 +89,4 @@ int main(int argc, char* argv[]) {
     }
 
     lua_close(L);
-    */
 }

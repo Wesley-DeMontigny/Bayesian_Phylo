@@ -51,6 +51,15 @@ double MoveTreeNNI::update(){
     tree->removeBranchLength(n1, p);
     tree->removeBranchLength(n2, a);
 
+    //Because a is the ancestor of p, this also updates a
+    Node* q = p;
+    do{
+        q->setNeedsCLUpdate(true);
+        q = q->getAncestor();
+    } 
+    while(q != root);
+    root->setNeedsCLUpdate(true);
+
     tree->initPostOrder();
 
     return 0.0;

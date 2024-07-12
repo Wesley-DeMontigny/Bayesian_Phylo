@@ -432,7 +432,6 @@ int TreeObject::getTaxonIndex(std::string token, std::vector<std::string> taxaNa
 }
 
 void TreeObject::initPostOrder(void) {
-
     postOrderSeq.clear();
     passDown(root, root);
 }

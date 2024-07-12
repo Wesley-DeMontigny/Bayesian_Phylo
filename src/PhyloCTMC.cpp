@@ -67,8 +67,8 @@ double PhyloCTMC::lnLikelihood(){
 
     TreeObject* activeT = tree->getValue();
 
-    std::vector<Node*>&  dpSeq = activeT->getPostOrderSeq();
-    for(Node* n : dpSeq){
+    std::vector<Node*>&  poSeq = activeT->getPostOrderSeq();
+    for(Node* n : poSeq){
         //Only update the conditional likelihoods if the node has changed
         if(n->getNeedsTPUpdate() == true){
             n->flipTP();
@@ -115,7 +115,7 @@ double PhyloCTMC::lnLikelihood(){
             n->setNeedsCLUpdate(false);
         }
     }
-    
+
     //Calculate the likelihood of the tree by summing up the likelihood at the root.
     double* pR = (*condL)(activeT->getRoot()->getIndex(), activeT->getRoot()->getActiveCL());
     std::vector<double>& f = transProb->getStationaryFreq();
@@ -127,6 +127,7 @@ double PhyloCTMC::lnLikelihood(){
             like += pR[i]*f[i];
         }
         lnL += std::log(like);
+        pR += 4;//Go to the next site...
     }
 
     return lnL;
