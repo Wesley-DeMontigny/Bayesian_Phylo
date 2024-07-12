@@ -9,7 +9,7 @@ MoveScaleBranch::MoveScaleBranch(TreeParameter* t) : param(t) {}
 double MoveScaleBranch::update(){
     RandomVariable& rng = RandomVariable::randomVariableInstance();
 
-    TreeObject* tree = param->getValue();
+    TreeObject* tree = param->getTree();
     std::vector<Node*> nodes = tree->getPostOrderSeq();
     Node* root = tree->getRoot();
 
@@ -21,7 +21,8 @@ double MoveScaleBranch::update(){
 
     double currentV = tree->getBranchLength(p, p->getAncestor());
     double tuning = std::log(4.0);
-    double newV = currentV * exp(tuning * (rng.uniformRv() - 0.5));
+    double scale = exp(tuning * (rng.uniformRv() - 0.5));
+    double newV = currentV * scale;
     tree->setBranchLength(p, p->getAncestor(), newV);
     p->setNeedsTPUpdate(true);
 
@@ -33,5 +34,5 @@ double MoveScaleBranch::update(){
     while(q != root);
     root->setNeedsCLUpdate(true);
 
-    return std::log(newV/currentV);
+    return std::log(scale);
 }

@@ -6,13 +6,20 @@
 class TreeParameter : public AbstractParameter{
     public:
         TreeParameter(void)=delete;
-        TreeParameter(TreeObject* t);
+        template<typename... Args> TreeParameter(Args&&... args);
         ~TreeParameter();
+        TreeObject* getTree(){return trees[0];}
+        TreeObject getValue(){return *trees[0];}
         void accept();
-        TreeObject* getValue(){return trees[0];}
         void reject();
     private:
         TreeObject* trees[2];
 };
+
+template<typename... Args>
+TreeParameter::TreeParameter(Args&&... args)
+    : trees{new TreeObject(std::forward<Args>(args)...), nullptr} {
+    trees[1] = new TreeObject(*trees[0]);
+}
 
 #endif

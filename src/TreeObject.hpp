@@ -20,7 +20,7 @@ class TreeObject {
                             TreeObject(double lambda, double mu, double duration);
                             TreeObject(std::string newick, std::vector<std::string> taxaNames);
                            ~TreeObject(void);
-        TreeObject&               operator=(const TreeObject& rhs);
+        TreeObject&         operator=(const TreeObject& rhs);
         void                flipAllTPs();
         void                flipAllCLs();
         double              getBranchLength(Node* p1, Node* p2) const;
@@ -35,6 +35,8 @@ class TreeObject {
         void                removeBranchLength(Node* p1, Node* p2);
         void                setBranchLength(Node* p1, Node* p2, double length);
         void                updateAll();
+        void                accept();
+        void                reject();
         
     private:
         Node*               addNode(void);

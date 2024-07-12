@@ -12,10 +12,10 @@
 
 PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t) {
 
-    TreeObject* activeT = tree->getValue();
+    TreeObject* activeT = tree->getTree();
 
     if(aln->getNumTaxa() != activeT->getNumTaxa())
-        Msg::error("Error: Expected " + std::to_string(aln->getNumTaxa()) + 
+        Msg::error("Expected " + std::to_string(aln->getNumTaxa()) + 
         "taxa in the tree, but found only " + std::to_string(activeT->getNumTaxa()));
 
     //We need to do some setting to make sure the alignment and tree match
@@ -33,7 +33,7 @@ PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t) {
         }
 
         if(found == false){
-            Msg::warning("Warning: Expected to find a tip named " + name + "! Assigning indices and names randomly.");
+            Msg::warning("Expected to find a sequence named " + name + "! Assigning indices and names randomly.");
             randomAssign = true;
             break;
         }
@@ -65,7 +65,7 @@ PhyloCTMC::~PhyloCTMC(){
 
 double PhyloCTMC::lnLikelihood(){
 
-    TreeObject* activeT = tree->getValue();
+    TreeObject* activeT = tree->getTree();
 
     std::vector<Node*>&  poSeq = activeT->getPostOrderSeq();
     for(Node* n : poSeq){

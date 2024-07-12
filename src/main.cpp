@@ -17,13 +17,12 @@
 
 int main(int argc, char* argv[]) {
 
-    RandomVariable& rv = RandomVariable::randomVariableInstance();
-
-    /*
+    RandomVariable& rng = RandomVariable::randomVariableInstance();
+/*
     Alignment aln("C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/primates_and_galeopterus_cytb.nex");
 
     TreeObject treeObj(&aln);
-    TreeParameter treeParam = TreeParameter(&treeObj);
+    TreeParameter treeParam = TreeParameter(23);
     PhyloCTMC model(&aln, &treeParam);
     FlatPrior priorD;
 
@@ -35,7 +34,7 @@ int main(int argc, char* argv[]) {
 
     Mcmc myMCMC(100, 1, 1, &model, &priorD, &moveScheduler);
     myMCMC.run();
-    */
+*/
 
     lua_State* L = luaL_newstate();
     luaL_openlibs(L);
@@ -46,14 +45,22 @@ int main(int argc, char* argv[]) {
             .addFunction("getTaxaNames", &Alignment::getTaxaNames)
         .endClass()
         .beginClass<TreeObject>("TreeObject")
-            .addConstructor<void(int), 
+            .addConstructor<
+            void(int), 
             void(std::string, std::vector<std::string>),
-            void(double, double, double)>()
+            void(double, double, double),
+            void(Alignment*)
+            >()
             .addFunction("getNewick", &TreeObject::getNewick)
             .addFunction("getNumTaxa", &TreeObject::getNumTaxa)
         .endClass()
         .beginClass<TreeParameter>("TreeParameter")
-            .addConstructor<void(TreeObject*)>()
+            .addConstructor<
+            void(int), 
+            void(std::string, std::vector<std::string>),
+            void(double, double, double),
+            void(Alignment*)
+            >()
             .addFunction("getValue", &TreeParameter::getValue)
         .endClass()
         .beginClass<AbstractMove>("AbstractMove")

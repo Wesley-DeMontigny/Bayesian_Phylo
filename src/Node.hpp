@@ -5,7 +5,7 @@
 
 class Node{
     public:
-        Node();
+                            Node();
         void                addNeighbor(Node* n) {neighbors.insert(n);}
         static Node*        chooseNodeFromSet(std::set<Node*>& s);
         void                flipCL(){activeCL ^= 1;}

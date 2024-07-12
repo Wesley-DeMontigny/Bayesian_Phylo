@@ -7,7 +7,7 @@ MoveTreeNNI::MoveTreeNNI(TreeParameter* t) : param(t) {}
         
 double MoveTreeNNI::update(){
 
-    TreeObject* tree = param->getValue();
+    TreeObject* tree = param->getTree();
     std::vector<Node*> nodes = tree->getPostOrderSeq();
     Node* root = tree->getRoot();
 

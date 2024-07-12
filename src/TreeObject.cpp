@@ -69,7 +69,7 @@ TreeObject::TreeObject(int nt) : numTaxa(nt) {
         {
         Node* p = postOrderSeq[i];
         if (p->getAncestor() != nullptr)
-            this->setBranchLength(p,p->getAncestor(), rng.exponentialRv(10.0));
+            this->setBranchLength(p,p->getAncestor(), rng.exponentialRv(5.0));
         }
 
     // index the interior nodes (the tip nodes are indexed, above)
@@ -120,14 +120,14 @@ TreeObject::TreeObject(std::string newick, std::vector<std::string> taxaNames){
             if(p->getAncestor() != nullptr)
                 p = p->getAncestor();
             else
-                Msg::error("Error: Poorly formatted Newick! -P should not be null.");
+                Msg::error("Poorly formatted Newick! -P should not be null.");
         }
         else if(tok == ":"){
             readingBranchLength = true;
         }
         else if(tok == ";"){
             if(p != root)
-                Msg::error("Error: Poorly formatted Newick! Did not end at root.");
+                Msg::error("Poorly formatted Newick! Did not end at root.");
         }
         else{
             if(readingBranchLength){
@@ -152,7 +152,7 @@ TreeObject::TreeObject(std::string newick, std::vector<std::string> taxaNames){
 
                 int taxonIndex = getTaxonIndex(tok, taxaNames);
                 if(taxonIndex == -1)
-                    Msg::error("Error: Token '" + tok + "' is not in taxa names");
+                    Msg::error("Token '" + tok + "' is not in taxa names");
                 newNode->setIndex(taxonIndex);
 
                 p = newNode;
@@ -164,7 +164,7 @@ TreeObject::TreeObject(std::string newick, std::vector<std::string> taxaNames){
     initPostOrder();
     
     if(numTaxa != taxaNames.size())
-        Msg::error("Error: Taxa names do not match the size of the newick string.");
+        Msg::error("Taxa names do not match the size of the newick string.");
 
     int idx = numTaxa;
     for(Node* n : postOrderSeq){
