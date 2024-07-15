@@ -402,6 +402,16 @@ double TreeObject::getBranchLength(Node* p1, Node* p2) const{
     return it->second;
 }
 
+std::vector<double*> TreeObject::getBranchLengths(){
+    std::vector<double*> returnVec;
+    returnVec.reserve(branchLengths.size());
+
+    for (auto &s : branchLengths)
+        returnVec.push_back(&s.second);
+
+    return returnVec;
+}
+
 std::string TreeObject::getNewick() const{
     std::stringstream strm;
     writeNode(root, strm);

@@ -11,6 +11,9 @@ void TreeParameter::accept(){
     *trees[1] = *trees[0];
 }
 
+std::vector<double*> TreeParameter::getBranchLengths(){
+    return trees[0]->getBranchLengths();
+}
 
 void TreeParameter::reject(){
     *trees[0] = *trees[1];

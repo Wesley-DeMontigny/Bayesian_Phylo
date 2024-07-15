@@ -24,6 +24,7 @@ class TreeObject {
         void                flipAllTPs();
         void                flipAllCLs();
         double              getBranchLength(Node* p1, Node* p2) const;
+        std::vector<double*> getBranchLengths();
         std::string         getNewick() const;
         int                 getNumTaxa(){return numTaxa;}
         std::vector<Node*>& getPostOrderSeq() {return postOrderSeq;}

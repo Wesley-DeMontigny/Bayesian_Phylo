@@ -9,7 +9,7 @@ class TreeParameter : public AbstractParameter{
         template<typename... Args> TreeParameter(Args&&... args);
         ~TreeParameter();
         TreeObject* getTree(){return trees[0];}
-        TreeObject getValue(){return *trees[0];}
+        std::vector<double*> getBranchLengths();
         void accept();
         void reject();
     private:
