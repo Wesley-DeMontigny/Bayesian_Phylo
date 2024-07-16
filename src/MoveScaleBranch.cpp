@@ -2,17 +2,16 @@
 #include "TreeObject.hpp"
 #include "RandomVariable.hpp"
 #include "Node.hpp"
-#include <cmath>
-#include <iostream>
 
 MoveScaleBranch::MoveScaleBranch(TreeParameter* t) : param(t), delta(std::log(4.0)) {}
         
 double MoveScaleBranch::update(){
-    RandomVariable& rng = RandomVariable::randomVariableInstance();
 
     TreeObject* tree = param->getTree();
     std::vector<Node*> nodes = tree->getPostOrderSeq();
     Node* root = tree->getRoot();
+
+    RandomVariable& rng = RandomVariable::randomVariableInstance();
 
     Node* p = nullptr;
     do{
@@ -29,15 +28,17 @@ double MoveScaleBranch::update(){
 
     Node* q = p;
     do{
-        q->setNeedsCLUpdate(true);
-        q->flipCL();
+        if(q->getIsTip() == false){//The conditional likelihoods at the tips should never change
+            q->setNeedsCLUpdate(true);
+            q->flipCL();
+        }
         q = q->getAncestor();
     } 
     while(q != root);
-    root->setNeedsCLUpdate(true);
     root->flipCL();
+    root->setNeedsCLUpdate(true);
 
-    return std::log(scale);
+    return 0.0;
 }
 
 void MoveScaleBranch::accept(){

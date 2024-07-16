@@ -87,7 +87,7 @@ double PhyloCTMC::lnLikelihood(){
                 if(d != n->getAncestor()){
                     double* pN = pNN;
                     double* pD = (*condL)(d->getIndex(), d->getActiveCL());
-                    DoubleMatrix* P = (*transProb)(d->getActiveTP(), d->getIndex());
+                    DoubleMatrix P = *(*transProb)(d->getActiveTP(), d->getIndex());
 
                     //Iterate over each of the characters and each of the potential states of our node
                     for(int c = 0, len=aln->getNumChar(); c < len; c++){
@@ -95,7 +95,7 @@ double PhyloCTMC::lnLikelihood(){
                             //Sum up the products of the likelihoods from the CTMC (transitioning from the node's hypothetical state to another) and the conditional likelihood of the descendent states 
                             double sum = 0.0;
                             for(int j = 0; j < 4; j++){
-                                sum += (*P)(i, j) * pD[j];
+                                sum += P(i, j) * pD[j];
                             }
                             //If this is the first time, set pN equal to the sum, otherwise multiply them
                             (*pN) *= sum;

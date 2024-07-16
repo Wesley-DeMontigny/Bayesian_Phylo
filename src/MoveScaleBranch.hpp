@@ -1,6 +1,5 @@
 #ifndef MOVE_SCALE_BRANCH_HPP
 #define MOVE_SCALE_BRANCH_HPP
-#include "AbstractParameter.hpp"
 #include "TreeParameter.hpp"
 #include "AbstractMove.hpp"
 

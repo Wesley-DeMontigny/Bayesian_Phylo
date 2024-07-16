@@ -28,13 +28,13 @@ int main(int argc, char* argv[]) {
     ExponentialDistribution branchPrior(0.2, branchLengths);
 
     std::vector<AbstractMove*> moves {
-        //&MoveTreeNNI(&treeParam)//,
+        &MoveTreeNNI(&treeParam),
         &MoveScaleBranch(&treeParam)
     };
 
     MoveScheduler moveScheduler(moves);
 
-    Mcmc myMCMC(1000, 1, 1, 100, &model, &branchPrior, &moveScheduler);
+    Mcmc myMCMC(10000, 1, 1, 100, &model, &branchPrior, &moveScheduler);
     myMCMC.run(false);
 
     std::cout << treeParam.getTree()->getNewick() << std::endl;
