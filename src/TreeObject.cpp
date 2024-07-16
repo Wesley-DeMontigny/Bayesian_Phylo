@@ -320,6 +320,7 @@ void TreeObject::clone(const TreeObject& t){
         for(int i = 0; i < t.nodes.size(); i++)
             addNode();
     }
+    this->branchLengths.clear();
 
     this->numTaxa = t.numTaxa;
     this->root = this->nodes[t.root->getOffset()];
@@ -335,19 +336,19 @@ void TreeObject::clone(const TreeObject& t){
         p->setNeedsCLUpdate(q->getNeedsCLUpdate());
         p->setNeedsTPUpdate(q->getNeedsTPUpdate());
 
-        if(q->getAncestor() != nullptr){
-            Node* ancestor = this->nodes[q->getAncestor()->getOffset()];
-            double bl = t.getBranchLength(q, q->getAncestor());
-            p->setAncestor(ancestor);
-            setBranchLength(p, ancestor, bl);
-        }
-        else
-            p->setAncestor(nullptr);
-
         p->removeAllNeighbors();
         std::set<Node*>& qNeighbors = q->getNeighbors();
         for(Node* n : qNeighbors)
             p->addNeighbor(this->nodes[n->getOffset()]);
+
+        if(q->getAncestor() != nullptr){
+            Node* ancestor = this->nodes[q->getAncestor()->getOffset()];
+            double bl = t.getBranchLength(q, q->getAncestor());
+            p->setAncestor(ancestor);
+            this->setBranchLength(p, ancestor, bl);
+        }
+        else
+            p->setAncestor(nullptr);
     }
 
     this->postOrderSeq.clear();

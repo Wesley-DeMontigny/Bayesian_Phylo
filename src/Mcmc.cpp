@@ -1,5 +1,4 @@
 #include "Mcmc.hpp"
-#include "PhyloCTMC.hpp"
 #include "RandomVariable.hpp"
 #include "AbstractDistribution.hpp"
 #include "AbstractParameter.hpp"
@@ -8,10 +7,10 @@
 #include <cmath>
 #include <iostream>
 
-Mcmc::Mcmc(int nC, int pF, int sF, AbstractDistribution* lD, AbstractDistribution* pD, MoveScheduler* m) : numCycles(nC), printFreq(pF), sampleFreq(sF), likelihood(lD), prior(pD), moveScheduler(m) {   }
+Mcmc::Mcmc(int nC, int pF, int sF, int tI, AbstractDistribution* lD, AbstractDistribution* pD, MoveScheduler* m) : numCycles(nC), printFreq(pF), sampleFreq(sF), tuningInterval(tI), likelihood(lD), prior(pD), moveScheduler(m) {   }
 
 
-void Mcmc::run(){
+void Mcmc::run(bool tune){
     RandomVariable& rng = RandomVariable::randomVariableInstance();
 
     double currentLnLikelihood = likelihood->lnLikelihood();
@@ -35,13 +34,16 @@ void Mcmc::run(){
             std::cout << n << " " << currentLnLikelihood << " -> " << newLnLikelihood << std::endl;
 
         if(acceptMove == true){
-            m->getParameter()->accept();
+            m->accept();
             currentLnLikelihood = newLnLikelihood;
             currentLnPrior = newLnPrior;
         }
         else{
-            m->getParameter()->reject();
+            m->reject();
         }
+
+        if(tune == true && n % tuningInterval == 0)
+            moveScheduler->tune();
 
         if(n % sampleFreq == 0)
             sampleChain(n);

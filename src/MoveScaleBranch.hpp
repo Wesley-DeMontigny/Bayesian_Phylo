@@ -8,9 +8,12 @@ class MoveScaleBranch : public AbstractMove{
     public:
         MoveScaleBranch(TreeParameter* t);
         double update();
-        AbstractParameter* getParameter(){return param;}
+        void accept();
+        void reject();
+        void tune();
     private:
         TreeParameter* param;
+        double delta;
 };
 
 #endif

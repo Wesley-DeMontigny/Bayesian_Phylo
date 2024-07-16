@@ -3,6 +3,9 @@
 #include "TreeObject.hpp"
 #include "RandomVariable.hpp"
 #include "AbstractMove.hpp"
+#include <iostream>
+
+MoveScheduler::MoveScheduler(void) {}
 
 MoveScheduler::MoveScheduler(std::vector<AbstractMove*> moves) : moveHandlers(moves) {}
 
@@ -13,4 +16,10 @@ AbstractMove* MoveScheduler::getMove(){
     AbstractMove* pickedMove = moveHandlers[(int)(rng.uniformRv() * moveHandlers.size())];
 
     return pickedMove;
+}
+
+void MoveScheduler::tune(){
+    for(AbstractMove* m : moveHandlers)
+        m->tune();
+
 }

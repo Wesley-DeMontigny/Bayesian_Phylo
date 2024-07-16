@@ -85,7 +85,7 @@ void Alignment::readNucleotideData(NxsCharactersBlock* charBlock){
                 matrix[i][j] += 2;
             if(state == 'G' || state == 'R' || state == 'S' || state == 'K' || state == 'B' || state == 'D' || state == 'V')
                 matrix[i][j] += 4;
-            if(state == 'T' || state == 'Y' || state == 'W' || state == 'K' || state == 'B' || state == 'D' || state == 'H')
+            if(state == 'T' || state == 'Y' || state == 'W' || state == 'K' || state == 'B' || state == 'D' || state == 'H' || state == 'U')
                 matrix[i][j] += 8;
             if(state == 'N' || state == '-' || state == '?')
                 matrix[i][j] = 15;

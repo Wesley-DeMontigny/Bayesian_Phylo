@@ -55,12 +55,32 @@ double MoveTreeNNI::update(){
     Node* q = p;
     do{
         q->setNeedsCLUpdate(true);
+        q->flipCL();
         q = q->getAncestor();
     } 
     while(q != root);
+    root->flipCL();
     root->setNeedsCLUpdate(true);
 
     tree->initPostOrder();
 
     return 0.0;
+}
+
+void MoveTreeNNI::accept(){
+    param->accept();
+    acceptedCount++;
+    acceptedSinceTune++;
+    countSinceTune++;
+}
+
+void MoveTreeNNI::reject(){
+    param->reject();
+    rejectedCount++;
+    countSinceTune++;
+}
+
+void MoveTreeNNI::tune(){
+    acceptedSinceTune = 0;
+    countSinceTune = 0;
 }

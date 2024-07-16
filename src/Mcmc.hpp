@@ -8,12 +8,13 @@ class MoveScheduler;
 class Mcmc{
     public:
         Mcmc(void)=delete;
-        Mcmc(int nC, int pF, int sF, AbstractDistribution* lD, AbstractDistribution* pD, MoveScheduler* m);
-        void run();
+        Mcmc(int nC, int pF, int sF, int tI, AbstractDistribution* lD, AbstractDistribution* pD, MoveScheduler* m);
+        void run(bool tune = false);
     private:
         int numCycles;
         int printFreq;
         int sampleFreq;
+        int tuningInterval;
         AbstractDistribution* likelihood;
         AbstractDistribution* prior;
         void sampleChain(int n);

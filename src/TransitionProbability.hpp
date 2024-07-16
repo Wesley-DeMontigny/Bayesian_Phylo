@@ -9,7 +9,7 @@ class TransitionProbability{
         TransitionProbability(void) = delete;
         TransitionProbability(int nn);
         ~TransitionProbability();
-        DoubleMatrix* operator()(int n, int s);
+        DoubleMatrix* operator()(int s, int n);
         std::vector<double>& getStationaryFreq(){return stationaryFreqs;}
         void set(int space, int nodeIdx, double v);
     private:

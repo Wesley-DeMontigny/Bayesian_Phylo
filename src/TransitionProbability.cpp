@@ -7,8 +7,8 @@ TransitionProbability::TransitionProbability(int nn) : numNodes(nn) {
     probs[1] = probs[0] + numNodes;
 
     for(int i = 0; i < numNodes; i++){
-        probs[0][i] = new DoubleMatrix(numNodes);
-        probs[1][i] = new DoubleMatrix(numNodes);
+        probs[0][i] = new DoubleMatrix(4);
+        probs[1][i] = new DoubleMatrix(4);
     }
 
     stationaryFreqs.resize(4);
@@ -26,12 +26,12 @@ TransitionProbability::~TransitionProbability(){
     delete [] probs[0];
 }
 
-DoubleMatrix* TransitionProbability::operator()(int n, int s){
+DoubleMatrix* TransitionProbability::operator()(int s, int n){
     return probs[s][n];
 }
 
-void TransitionProbability::set(int space, int nodeIdx, double v){
-    DoubleMatrix* P = probs[space][nodeIdx];
+void TransitionProbability::set(int s, int n, double v){
+    DoubleMatrix* P = probs[s][n];
 
     double expX = std::exp((-4.0/3.0) * v);
     double p0 = 0.25 + (0.75 * expX);

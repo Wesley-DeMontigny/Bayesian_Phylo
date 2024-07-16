@@ -54,7 +54,6 @@ PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t) {
     transProb = new TransitionProbability(2 * aln->getNumTaxa() - 1);
 
     activeT->updateAll();
-    double lnL = lnLikelihood();
 }
 
 
@@ -71,19 +70,16 @@ double PhyloCTMC::lnLikelihood(){
     for(Node* n : poSeq){
         //Only update the conditional likelihoods if the node has changed
         if(n->getNeedsTPUpdate() == true){
-            n->flipTP();
             if(n != activeT->getRoot()){
                 double v = activeT->getBranchLength(n, n->getAncestor());
                 transProb->set(n->getActiveTP(), n->getIndex(), v);
-                n->setNeedsTPUpdate(false);
             }
+            n->setNeedsTPUpdate(false);
         }
         if(n->getNeedsCLUpdate() == true){
-            n->flipCL();
             //Get memory address of the node we are looking at and pre-set all of the likelihoods at each site to be 1.0
             double* pNN = (*condL)(n->getIndex(), n->getActiveCL());
-            for(int c = 0, len=aln->getNumChar()*4; c < len; c++) 
-                pNN[c] = 1.0;
+            std::fill(pNN, pNN + (aln->getNumChar() * 4), 1.0);
 
             std::set<Node*>& nNeighbors = n->getNeighbors();
             //Iterate over the descendents (usually only two)
@@ -91,7 +87,7 @@ double PhyloCTMC::lnLikelihood(){
                 if(d != n->getAncestor()){
                     double* pN = pNN;
                     double* pD = (*condL)(d->getIndex(), d->getActiveCL());
-                    DoubleMatrix* P = (*transProb)(d->getIndex(), d->getActiveTP());
+                    DoubleMatrix* P = (*transProb)(d->getActiveTP(), d->getIndex());
 
                     //Iterate over each of the characters and each of the potential states of our node
                     for(int c = 0, len=aln->getNumChar(); c < len; c++){
