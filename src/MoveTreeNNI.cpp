@@ -1,9 +1,12 @@
 #include "MoveTreeNNI.hpp"
 #include "TreeObject.hpp"
+#include "MoveScheduler.hpp"
 #include "RandomVariable.hpp"
 #include "Node.hpp"
 
-MoveTreeNNI::MoveTreeNNI(TreeParameter* t) : param(t) {}
+MoveTreeNNI::MoveTreeNNI(TreeParameter* t) : param(t) {
+    MoveScheduler::moveSchedulerInstance().registerMove(this);
+}
         
 double MoveTreeNNI::update(){
 

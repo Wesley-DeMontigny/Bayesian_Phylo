@@ -1,9 +1,13 @@
 #include "MoveScaleBranch.hpp"
+#include "MoveScheduler.hpp"
 #include "TreeObject.hpp"
 #include "RandomVariable.hpp"
 #include "Node.hpp"
+#include <iostream>
 
-MoveScaleBranch::MoveScaleBranch(TreeParameter* t) : param(t), delta(std::log(4.0)) {}
+MoveScaleBranch::MoveScaleBranch(TreeParameter* t) : param(t), delta(std::log(4.0)) {
+    MoveScheduler::moveSchedulerInstance().registerMove(this);
+}
         
 double MoveScaleBranch::update(){
 
@@ -55,9 +59,9 @@ void MoveScaleBranch::reject(){
 }
 
 void MoveScaleBranch::tune(){
-    double rate = acceptedSinceTune/countSinceTune;
+    double rate = (double)acceptedSinceTune/(double)countSinceTune;
 
-    if ( rate > 0.234 ) {
+    if ( rate > 0.44 ) {
         delta *= (1.0 + ((rate-0.234)/0.766));
     }
     else {

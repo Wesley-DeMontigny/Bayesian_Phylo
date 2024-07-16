@@ -7,17 +7,18 @@
 #include <cmath>
 #include <iostream>
 
-Mcmc::Mcmc(int nC, int pF, int sF, int tI, AbstractDistribution* lD, AbstractDistribution* pD, MoveScheduler* m) : numCycles(nC), printFreq(pF), sampleFreq(sF), tuningInterval(tI), likelihood(lD), prior(pD), moveScheduler(m) {   }
+Mcmc::Mcmc(int nC, int pF, int sF, int tI, AbstractDistribution* lD, AbstractDistribution* pD) : numCycles(nC), printFreq(pF), sampleFreq(sF), tuningInterval(tI), likelihood(lD), prior(pD) {   }
 
 
 void Mcmc::run(bool tune){
     RandomVariable& rng = RandomVariable::randomVariableInstance();
+    MoveScheduler& moveScheduler = MoveScheduler::moveSchedulerInstance();
 
     double currentLnLikelihood = likelihood->lnLikelihood();
     double currentLnPrior = prior->lnLikelihood();
 
     for(int n = 1; n <= numCycles; n++){
-        AbstractMove* m = moveScheduler->getMove();
+        AbstractMove* m = moveScheduler.getMove();
         double lnProposalRatio = m->update();
         double newLnPrior = prior->lnLikelihood();
         double newLnLikelihood = likelihood->lnLikelihood();
@@ -43,7 +44,7 @@ void Mcmc::run(bool tune){
         }
 
         if(tune == true && n % tuningInterval == 0)
-            moveScheduler->tune();
+            moveScheduler.tune();
 
         if(n % sampleFreq == 0)
             sampleChain(n);

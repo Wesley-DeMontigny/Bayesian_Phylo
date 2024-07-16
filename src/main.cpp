@@ -18,6 +18,7 @@
 int main(int argc, char* argv[]) {
 
     RandomVariable& rng = RandomVariable::randomVariableInstance();
+    MoveScheduler& moveScheduler = MoveScheduler::moveSchedulerInstance();
 
     Alignment aln("C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/primates_and_galeopterus_cytb.nex");
 
@@ -27,15 +28,11 @@ int main(int argc, char* argv[]) {
     auto branchLengths = std::bind(&TreeParameter::getBranchLengths, &treeParam);
     ExponentialDistribution branchPrior(0.2, branchLengths);
 
-    std::vector<AbstractMove*> moves {
-        &MoveTreeNNI(&treeParam),
-        &MoveScaleBranch(&treeParam)
-    };
+    MoveTreeNNI nniMove(&treeParam);
+    MoveScaleBranch scaleMove(&treeParam);
 
-    MoveScheduler moveScheduler(moves);
-
-    Mcmc myMCMC(10000, 1, 1, 100, &model, &branchPrior, &moveScheduler);
-    myMCMC.run(false);
+    Mcmc myMCMC(10000, 1, 1, 100, &model, &branchPrior);
+    myMCMC.run(true);
 
     std::cout << treeParam.getTree()->getNewick() << std::endl;
 

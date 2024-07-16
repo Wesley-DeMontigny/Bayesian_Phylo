@@ -8,7 +8,7 @@ class MoveScheduler;
 class Mcmc{
     public:
         Mcmc(void)=delete;
-        Mcmc(int nC, int pF, int sF, int tI, AbstractDistribution* lD, AbstractDistribution* pD, MoveScheduler* m);
+        Mcmc(int nC, int pF, int sF, int tI, AbstractDistribution* lD, AbstractDistribution* pD);
         void run(bool tune = false);
     private:
         int numCycles;
@@ -18,7 +18,6 @@ class Mcmc{
         AbstractDistribution* likelihood;
         AbstractDistribution* prior;
         void sampleChain(int n);
-        MoveScheduler* moveScheduler;
 };
 
 #endif
