@@ -1,16 +1,18 @@
 #include "HillClimb.hpp"
-#include "AbstractDistribution.hpp"
+#include "AbstractLikelihood.hpp"
 #include "AbstractParameter.hpp"
 #include "MoveScheduler.hpp"
 #include "AbstractMove.hpp"
 #include <cmath>
 #include <iostream>
 
-HillClimb::HillClimb(int nC, int pF, int sF, AbstractDistribution* lD,  MoveScheduler* m) : numCycles(nC), printFreq(pF), sampleFreq(sF), likelihood(lD), moveScheduler(m) {   }
+HillClimb::HillClimb(int nC, int pF, AbstractLikelihood* lD, MoveScheduler* mS) : numCycles(nC), printFreq(pF), likelihood(lD), moveScheduler(mS) {   }
 
 
 void HillClimb::run(){
 
+    likelihood->regenerateLikelihood();
+    likelihood->acceptLikelihood();
     double currentLnLikelihood = likelihood->lnLikelihood();
 
     for(int n = 1; n <= numCycles; n++){
@@ -33,11 +35,5 @@ void HillClimb::run(){
             m->reject();
         }
 
-        if(n % sampleFreq == 0)
-            sample(n);
     }
-}
-
-void HillClimb::sample(int n){
-
 }

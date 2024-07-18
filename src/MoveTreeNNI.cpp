@@ -4,9 +4,7 @@
 #include "RandomVariable.hpp"
 #include "Node.hpp"
 
-MoveTreeNNI::MoveTreeNNI(TreeParameter* t) : param(t) {
-    MoveScheduler::moveSchedulerInstance().registerMove(this);
-}
+MoveTreeNNI::MoveTreeNNI(TreeParameter* t) : param(t) {}
         
 double MoveTreeNNI::update(){
 
@@ -66,6 +64,8 @@ double MoveTreeNNI::update(){
     root->setNeedsCLUpdate(true);
 
     tree->initPostOrder();
+
+    param->regenerate();
 
     return 0.0;
 }

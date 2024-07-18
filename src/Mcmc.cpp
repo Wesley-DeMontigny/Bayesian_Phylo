@@ -1,26 +1,30 @@
 #include "Mcmc.hpp"
 #include "RandomVariable.hpp"
-#include "AbstractDistribution.hpp"
+#include "AbstractLikelihood.hpp"
 #include "AbstractParameter.hpp"
+#include "AbstractPrior.hpp"
 #include "MoveScheduler.hpp"
 #include "AbstractMove.hpp"
+#include "EventManager.hpp"
 #include <cmath>
 #include <iostream>
 
-Mcmc::Mcmc(int nC, int pF, int sF, int tI, AbstractDistribution* lD, AbstractDistribution* pD) : numCycles(nC), printFreq(pF), sampleFreq(sF), tuningInterval(tI), likelihood(lD), prior(pD) {   }
+Mcmc::Mcmc(AbstractLikelihood* lD, AbstractPrior* pD, MoveScheduler* mS) : likelihood(lD), prior(pD), moveScheduler(mS) {   }
 
-
-void Mcmc::run(bool tune){
+void Mcmc::run(int numCycles, EventManager* e){
     RandomVariable& rng = RandomVariable::randomVariableInstance();
-    MoveScheduler& moveScheduler = MoveScheduler::moveSchedulerInstance();
 
+    likelihood->regenerateLikelihood();
+    likelihood->acceptLikelihood();
     double currentLnLikelihood = likelihood->lnLikelihood();
-    double currentLnPrior = prior->lnLikelihood();
+    prior->regeneratePrior();
+    prior->acceptPrior();
+    double currentLnPrior = prior->lnPrior();
 
     for(int n = 1; n <= numCycles; n++){
-        AbstractMove* m = moveScheduler.getMove();
+        AbstractMove* m = moveScheduler->getMove();
         double lnProposalRatio = m->update();
-        double newLnPrior = prior->lnLikelihood();
+        double newLnPrior = prior->lnPrior();
         double newLnLikelihood = likelihood->lnLikelihood();
 
         double lnPriorRatio = newLnPrior - currentLnPrior;
@@ -31,9 +35,6 @@ void Mcmc::run(bool tune){
         if(std::log(rng.uniformRv()) < lnR)
             acceptMove = true;
 
-        if(n % printFreq == 0)
-            std::cout << n << " " << currentLnLikelihood << " -> " << newLnLikelihood << std::endl;
-
         if(acceptMove == true){
             m->accept();
             currentLnLikelihood = newLnLikelihood;
@@ -43,14 +44,6 @@ void Mcmc::run(bool tune){
             m->reject();
         }
 
-        if(tune == true && n % tuningInterval == 0)
-            moveScheduler.tune();
-
-        if(n % sampleFreq == 0)
-            sampleChain(n);
+        e->call(n);
     }
-}
-
-void Mcmc::sampleChain(int n){
-
 }

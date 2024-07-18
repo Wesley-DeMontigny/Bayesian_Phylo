@@ -2,20 +2,18 @@
 #define HILL_CLIMB_HPP
 
 class MoveScheduler;
-class AbstractDistribution;
+class AbstractLikelihood;
 
 class HillClimb{
     public:
         HillClimb(void)=delete;
-        HillClimb(int nC, int pF, int sF, AbstractDistribution* lD, MoveScheduler* m);
+        HillClimb(int nC, int pF, AbstractLikelihood* lD, MoveScheduler* mS);
         void run();
     private:
+        MoveScheduler* moveScheduler;
         int numCycles;
         int printFreq;
-        int sampleFreq;
-        AbstractDistribution* likelihood;
-        void sample(int n);
-        MoveScheduler* moveScheduler;
+        AbstractLikelihood* likelihood;
 };
 
 #endif

@@ -18,6 +18,11 @@ AbstractMove* MoveScheduler::getMove(){
     return pickedMove;
 }
 
+void MoveScheduler::registerMove(AbstractMove* m){
+    moveHandlers.push_back(m);
+    //weights.push_back(1.0);
+}
+
 void MoveScheduler::tune(){
     for(AbstractMove* m : moveHandlers)
         m->tune();

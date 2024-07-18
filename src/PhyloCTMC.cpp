@@ -10,9 +10,10 @@
 #include <cmath>
 #include <string>
 
-PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t) {
+PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t), oldLikelihood(0.0), currentLikelihood(0.0) {
 
     TreeObject* activeT = tree->getTree();
+    t->setLikelihood(this);
 
     if(aln->getNumTaxa() != activeT->getNumTaxa())
         Msg::error("Expected " + std::to_string(aln->getNumTaxa()) + 
@@ -62,7 +63,7 @@ PhyloCTMC::~PhyloCTMC(){
     delete transProb;
 }
 
-double PhyloCTMC::lnLikelihood(){
+void PhyloCTMC::regenerateLikelihood(){
 
     TreeObject* activeT = tree->getTree();
 
@@ -126,5 +127,5 @@ double PhyloCTMC::lnLikelihood(){
         pR += 4;//Go to the next site...
     }
 
-    return lnL;
+    currentLikelihood = lnL;
 }

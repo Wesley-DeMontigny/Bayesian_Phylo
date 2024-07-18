@@ -5,9 +5,7 @@
 #include "Node.hpp"
 #include <iostream>
 
-MoveScaleBranch::MoveScaleBranch(TreeParameter* t) : param(t), delta(std::log(4.0)) {
-    MoveScheduler::moveSchedulerInstance().registerMove(this);
-}
+MoveScaleBranch::MoveScaleBranch(TreeParameter* t) : param(t), delta(std::log(4.0)) {}
         
 double MoveScaleBranch::update(){
 
@@ -41,6 +39,8 @@ double MoveScaleBranch::update(){
     while(q != root);
     root->flipCL();
     root->setNeedsCLUpdate(true);
+
+    param->regenerate();
 
     return 0.0;
 }
