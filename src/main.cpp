@@ -13,6 +13,7 @@
 #include "McmcFileLogEvent.hpp"
 #include "McmcScreenLogEvent.hpp"
 #include "IterationTrackerEvent.hpp"
+#include "MoveTreeLocal.hpp"
 
 int main(int argc, char* argv[]) {
 
@@ -28,17 +29,21 @@ int main(int argc, char* argv[]) {
 
     MoveTreeNNI nniMove(&treeParam);
     MoveScaleBranch scaleBranchMove(&treeParam);
+    MoveTreeLocal localMove(&treeParam);
     moveScheduler.registerMove(&nniMove);
     moveScheduler.registerMove(&scaleBranchMove);
+    moveScheduler.registerMove(&localMove);
 
     Mcmc myMCMC(&model, &treePrior, &moveScheduler);
+
 
     EventManager burnIn;
     burnIn.registerEvent(&TuneEvent(&moveScheduler), 100);
     burnIn.registerEvent(&IterationTrackerEvent(), 10);
-    burnIn.initialize();
 
-    myMCMC.run(2500, &burnIn);
+    burnIn.initialize();
+    myMCMC.run(5000, &burnIn);
+
 
     EventManager realRun;
     McmcScreenLogEvent screenLogger;
@@ -50,9 +55,9 @@ int main(int argc, char* argv[]) {
     fileLogger.setPrior(&treePrior);
     fileLogger.setFile("C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/test_mcmc.log");
     realRun.registerEvent(&fileLogger, 10);
+    
     realRun.initialize();
-
-    myMCMC.run(10000, &realRun);
+    myMCMC.run(20000, &realRun);
 
     std::cout << treeParam.getTree()->getNewick() << std::endl;
 

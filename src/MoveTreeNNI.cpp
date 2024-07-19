@@ -26,22 +26,29 @@ double MoveTreeNNI::update(){
     neighbors1.erase(a);//Exclude a
     Node* n1 = Node::chooseNodeFromSet(neighbors1);
 
-    //Is it technically correct to exclude the ancestor of a?
     std::set<Node*> neighbors2 = a->getNeighbors();
     neighbors2.erase(p);//Don't select p
-    neighbors2.erase(a->getAncestor());//Don't select ancestor
     Node* n2 = Node::chooseNodeFromSet(neighbors2);
 
-    //Add new neighbors and keep branch lengths
     double l1 = tree->getBranchLength(p, n1);
     double l2 = tree->getBranchLength(a, n2);
+
     n1->addNeighbor(a);
     a->addNeighbor(n1);
     n1->setAncestor(a);
-    n2->addNeighbor(p);
-    p->addNeighbor(n2);
-    n2->setAncestor(p);
     tree->setBranchLength(a, n1, l1);
+    
+    if(n2 != a->getAncestor()){
+        n2->addNeighbor(p);
+        p->addNeighbor(n2);
+        n2->setAncestor(p);
+    }
+    else{//If this isn't the case then we need to swap around the tree
+        n2->addNeighbor(p);
+        p->addNeighbor(n2);
+        p->setAncestor(n2);
+        a->setAncestor(p);
+    }
     tree->setBranchLength(p, n2, l2);
 
     //Remove old connections
@@ -52,13 +59,22 @@ double MoveTreeNNI::update(){
     tree->removeBranchLength(n1, p);
     tree->removeBranchLength(n2, a);
 
-    //Because a is the ancestor of p, this also updates a
-    Node* q = p;
+    Node* q = nullptr;
+    if(n2 != a->getAncestor())
+        q = p;
+    else{
+        q = a;
+        a->setNeedsTPUpdate(true);//Because TP is defined as the branch going to the descendent...
+        p->setNeedsTPUpdate(true);//Flipping this internal branch causes a change in the TP!
+        a->flipTP();
+        p->flipTP();
+    }
+
     do{
         q->setNeedsCLUpdate(true);
         q->flipCL();
         q = q->getAncestor();
-    } 
+    }
     while(q != root);
     root->flipCL();
     root->setNeedsCLUpdate(true);
