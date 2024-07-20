@@ -7,13 +7,14 @@ class DoubleMatrix;
 class TransitionProbability{
     public:
         TransitionProbability(void) = delete;
-        TransitionProbability(int nn);
+        TransitionProbability(int nn, int s);
         ~TransitionProbability();
         DoubleMatrix* operator()(int s, int n);
         std::vector<double>& getStationaryFreq(){return stationaryFreqs;}
         void set(int space, int nodeIdx, double v);
     private:
         int numNodes;
+        int stateSpace;
         DoubleMatrix** probs[2];
         std::vector<double> stationaryFreqs;
 };

@@ -15,13 +15,16 @@ class Alignment{
         int                         getNumChar() {return numChar;}
         int                         getNumTaxa() {return numTaxa;}
         DoubleMatrix                getPairwiseIdentities();
+        int                         getStateSpace() {return stateSpace;}
         std::vector<std::string>    getTaxaNames() {return taxaNames;}
     private:
         int                         dataType;
         int**                       matrix;
         int                         numTaxa;
         int                         numChar;
+        int                         stateSpace;
         void                        readNucleotideData(NxsCharactersBlock* charBlock);
+        void                        readAminoAcidData(NxsCharactersBlock* charBlock);
         std::vector<std::string>    taxaNames;
 };
 

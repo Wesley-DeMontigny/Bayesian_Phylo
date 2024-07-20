@@ -2,18 +2,18 @@
 #include "DoubleMatrix.hpp"
 #include <cmath>
 
-TransitionProbability::TransitionProbability(int nn) : numNodes(nn) {
+TransitionProbability::TransitionProbability(int nn, int s) : numNodes(nn), stateSpace(s) {
     probs[0] = new DoubleMatrix*[2*numNodes];
     probs[1] = probs[0] + numNodes;
 
     for(int i = 0; i < numNodes; i++){
-        probs[0][i] = new DoubleMatrix(4);
-        probs[1][i] = new DoubleMatrix(4);
+        probs[0][i] = new DoubleMatrix(stateSpace);
+        probs[1][i] = new DoubleMatrix(stateSpace);
     }
 
-    stationaryFreqs.resize(4);
-    for(int i = 0; i < 4; i++){
-        stationaryFreqs[i] = 0.25;
+    stationaryFreqs.resize(stateSpace);
+    for(int i = 0; i < stateSpace; i++){
+        stationaryFreqs[i] = 1.0 / (double)(stateSpace);
     }
 }
 

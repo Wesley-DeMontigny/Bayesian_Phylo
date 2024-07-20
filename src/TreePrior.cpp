@@ -23,8 +23,10 @@ void TreePrior::regeneratePrior(){
 
         for(double* val : values){
             double LnL = 0.0;
-            if(val >= 0)
+            if(val > 0)
                 LnL = std::log((lambda) * std::exp(-1 * (lambda) * (*val)));
+            else
+                LnL = -INFINITY;
             totalLnL += LnL;
         }
 

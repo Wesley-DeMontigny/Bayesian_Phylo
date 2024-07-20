@@ -14,7 +14,7 @@ PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t), oldLikel
 
     TreeObject* activeT = tree->getTree();
     t->setLikelihood(this);
-
+    stateSpace = aln->getStateSpace();
     if(aln->getNumTaxa() != activeT->getNumTaxa())
         Msg::error("Expected " + std::to_string(aln->getNumTaxa()) + 
         "taxa in the tree, but found only " + std::to_string(activeT->getNumTaxa()));
@@ -52,7 +52,7 @@ PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t), oldLikel
     tree->accept(); //Accept the tip changes into memory (if any happened)
 
     condL = new ConditionalLikelihood(aln);
-    transProb = new TransitionProbability(2 * aln->getNumTaxa() - 1);
+    transProb = new TransitionProbability(2 * aln->getNumTaxa() - 1, stateSpace);
 
     activeT->updateAll();
 }
@@ -80,7 +80,7 @@ void PhyloCTMC::regenerateLikelihood(){
         if(n->getNeedsCLUpdate() == true){
             //Get memory address of the node we are looking at and pre-set all of the likelihoods at each site to be 1.0
             double* pNN = (*condL)(n->getIndex(), n->getActiveCL());
-            std::fill(pNN, pNN + (aln->getNumChar() * 4), 1.0);
+            std::fill(pNN, pNN + (aln->getNumChar() * stateSpace), 1.0);
 
             std::set<Node*>& nNeighbors = n->getNeighbors();
             //Iterate over the descendents (usually only two)
@@ -92,10 +92,10 @@ void PhyloCTMC::regenerateLikelihood(){
 
                     //Iterate over each of the characters and each of the potential states of our node
                     for(int c = 0, len=aln->getNumChar(); c < len; c++){
-                        for(int i = 0; i < 4; i++){
+                        for(int i = 0; i < stateSpace; i++){
                             //Sum up the products of the likelihoods from the CTMC (transitioning from the node's hypothetical state to another) and the conditional likelihood of the descendent states 
                             double sum = 0.0;
-                            for(int j = 0; j < 4; j++){
+                            for(int j = 0; j < stateSpace; j++){
                                 sum += P(i, j) * pD[j];
                             }
                             //If this is the first time, set pN equal to the sum, otherwise multiply them
@@ -104,7 +104,7 @@ void PhyloCTMC::regenerateLikelihood(){
                             pN++;
                         }
                         //Move the memory address to the next site
-                        pD+=4;
+                        pD+=stateSpace;
                     }
                 }
             }
@@ -120,11 +120,11 @@ void PhyloCTMC::regenerateLikelihood(){
 
     for(int c = 0, len=aln->getNumChar(); c < len; c++){
         double like = 0.0;
-        for(int i = 0; i < 4; i++){
+        for(int i = 0; i < stateSpace; i++){
             like += pR[i]*f[i];
         }
         lnL += std::log(like);
-        pR += 4;//Go to the next site...
+        pR += stateSpace;//Go to the next site...
     }
 
     currentLikelihood = lnL;

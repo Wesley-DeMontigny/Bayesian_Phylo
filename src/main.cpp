@@ -36,14 +36,12 @@ int main(int argc, char* argv[]) {
 
     Mcmc myMCMC(&model, &treePrior, &moveScheduler);
 
-
     EventManager burnIn;
     burnIn.registerEvent(&TuneEvent(&moveScheduler), 100);
     burnIn.registerEvent(&IterationTrackerEvent(), 10);
 
     burnIn.initialize();
-    myMCMC.run(5000, &burnIn);
-
+    myMCMC.run(2500, &burnIn);
 
     EventManager realRun;
     McmcScreenLogEvent screenLogger;

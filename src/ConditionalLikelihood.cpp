@@ -3,10 +3,12 @@
 
 ConditionalLikelihood::ConditionalLikelihood(Alignment* aln) : numNodes(aln->getNumTaxa() * 2 - 1) {
     numChar = aln->getNumChar();
-    condLikelihoods[0] = new double[2*numNodes*numChar*4];
-    condLikelihoods[1] = condLikelihoods[0] + (numNodes*numChar*4);
+    stateSpace = aln->getStateSpace();
+    int width = numNodes*numChar*stateSpace;
+    condLikelihoods[0] = new double[2 * width];
+    condLikelihoods[1] = condLikelihoods[0] + (width);
 
-    for(int i = 0; i < numNodes*numChar*4; i++){
+    for(int i = 0; i < width; i++){
         condLikelihoods[0][i] = 0.0;
         condLikelihoods[1][i] = 0.0;
     }
@@ -18,7 +20,7 @@ ConditionalLikelihood::ConditionalLikelihood(Alignment* aln) : numNodes(aln->get
 
             unsigned mask = 1;
 
-            for(int j = 0; j < 4; j++) {
+            for(int j = 0; j < stateSpace; j++) {
                 if((mask & state) != 0)
                     *p = 1.0;
                 mask <<= 1;
@@ -35,5 +37,5 @@ ConditionalLikelihood::~ConditionalLikelihood(){
 
 
 double* ConditionalLikelihood::operator()(int n, int s){
-    return condLikelihoods[s] + n*numChar*4;
+    return condLikelihoods[s] + n*numChar*stateSpace;
 }

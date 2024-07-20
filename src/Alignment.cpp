@@ -28,6 +28,11 @@ Alignment::Alignment(std::string fn){
             dataType = charBlock->GetDataType();
             if(dataType == NxsCharactersBlock::dna || dataType == NxsCharactersBlock::nucleotide || dataType == NxsCharactersBlock::rna){
                 readNucleotideData(charBlock);
+                stateSpace = 4;
+            }
+            else if(dataType == NxsCharactersBlock::protein){
+                readAminoAcidData(charBlock);
+                stateSpace = 20;
             }
             else{
                 Msg::error("Cannot read this data type!");
@@ -52,7 +57,7 @@ DoubleMatrix Alignment::getPairwiseIdentities(){
             else{
                 double pID = 0.0;
                 for(int k = 0; k < numChar; k++)
-                    pID += matrix[i][k] == matrix[j][k]; // This implementation isn't ambiguous-character-friendly
+                    pID += (matrix[i][k] & matrix[j][k]) > 0; // This implementation isn't ambiguous-character-friendly
                 
                 pID = pID/numChar;
                 pairwiseID(i, j) = pID;
@@ -67,6 +72,7 @@ DoubleMatrix Alignment::getPairwiseIdentities(){
 void Alignment::readNucleotideData(NxsCharactersBlock* charBlock){
     numTaxa = charBlock->GetNumActiveTaxa();
     numChar = charBlock->GetNumActiveChar();
+
     matrix = new int*[numTaxa];
     matrix[0] = new int[numTaxa*numChar];
     for(int i = 1; i < numTaxa; i++)
@@ -78,7 +84,7 @@ void Alignment::readNucleotideData(NxsCharactersBlock* charBlock){
     for(int i = 0; i < numTaxa; i++){
         taxaNames.push_back(charBlock->GetTaxonLabel(i));
         for(int j = 0; j < numChar; j++){
-            char state = charBlock->GetState(i,j);
+            char state = charBlock->GetState(i, j);
             if(state == 'A' || state == 'R' || state == 'W' || state == 'M' || state == 'D' || state == 'H' || state == 'V')
                 matrix[i][j] += 1;
             if(state == 'C' || state == 'Y' || state == 'S' || state == 'M' || state == 'B' || state == 'H' || state == 'V')
@@ -87,8 +93,38 @@ void Alignment::readNucleotideData(NxsCharactersBlock* charBlock){
                 matrix[i][j] += 4;
             if(state == 'T' || state == 'Y' || state == 'W' || state == 'K' || state == 'B' || state == 'D' || state == 'H' || state == 'U')
                 matrix[i][j] += 8;
-            if(state == 'N' || state == '-' || state == '?')
+            if(state == 'N' || charBlock->IsGapState(i, j) || charBlock->IsMissingState(i, j))
                 matrix[i][j] = 15;
+        }
+    }
+}
+
+void Alignment::readAminoAcidData(NxsCharactersBlock* charBlock){
+    numTaxa = charBlock->GetNumActiveTaxa();
+    numChar = charBlock->GetNumActiveChar();
+    char symbols[20] = {'A', 'R', 'N', 'D', 'C', 'E', 'Q', 'G', 'H', 'I', 'L', 'K', 'M', 'F', 'P', 'S', 'T', 'W', 'Y', 'V'};
+
+    matrix = new int*[numTaxa];
+
+    matrix[0] = new int[numTaxa*numChar];
+    for(int i = 1; i < numTaxa; i++)
+        matrix[i] = matrix[i-1] + numChar;
+    for(int i = 0; i < numTaxa; i++)
+        for(int j = 0; j < numChar; j++)
+            matrix[i][j] = 0;
+
+    for(int i = 0; i < numTaxa; i++){
+        taxaNames.push_back(charBlock->GetTaxonLabel(i));
+        for(int j = 0; j < numChar; j++){
+            char state = charBlock->GetState(i, j);
+            for(int k = 0; k < 20; k++){
+                if(symbols[k] == state){
+                    matrix[i][j] = 2^k;
+                    break;
+                }
+            }
+            if(state == 'X' || charBlock->IsGapState(i, j) || charBlock->IsMissingState(i, j))
+                matrix[i][j] = 1048575;
         }
     }
 }

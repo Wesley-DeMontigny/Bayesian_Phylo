@@ -62,10 +62,10 @@ void MoveScaleBranch::tune(){
     double rate = (double)acceptedSinceTune/(double)countSinceTune;
 
     if ( rate > 0.44 ) {
-        delta *= (1.0 + ((rate-0.234)/0.766));
+        delta *= (1.0 + ((rate-0.44)/0.766));
     }
     else {
-        delta /= (2.0 - rate/0.234);
+        delta /= (2.0 - rate/0.44);
     }
 
     acceptedSinceTune = 0;

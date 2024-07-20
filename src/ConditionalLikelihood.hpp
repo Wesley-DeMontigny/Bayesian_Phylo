@@ -14,6 +14,7 @@ class ConditionalLikelihood{
         double* condLikelihoods[2];
         int numChar;
         int numNodes;
+        int stateSpace;
 };
 
 #endif

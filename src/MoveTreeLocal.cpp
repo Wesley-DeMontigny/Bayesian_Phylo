@@ -17,8 +17,6 @@ The move is basically as follows:
 2. Scale the length of that whole path like you would normally do.
 3. Randomly draw a position on that length to pick off the subtree originally connected
    to one of the internal nodes and graft it there.
-
-This seems WAY too complicated. I might be doing something silly here.
 */
 double MoveTreeLocal::update(){
 
@@ -102,6 +100,7 @@ double MoveTreeLocal::update(){
     a->flipTP();
     c->flipTP();
 
+    //The updating gets a little awkward because we don't really know the branching here.
     Node* q = v;
     if(v->getAncestor() != u)
         q = u;
@@ -136,15 +135,15 @@ void MoveTreeLocal::reject(){
 }
 
 void MoveTreeLocal::tune(){
+    //Something about this causes the branch lengths to go to 0
     double rate = (double)acceptedSinceTune/(double)countSinceTune;
 
     if ( rate > 0.44 ) {
-        delta *= (1.0 + ((rate-0.234)/0.766));
+        delta *= (1.0 + ((rate-0.44)/0.766));
     }
     else {
-        delta /= (2.0 - rate/0.234);
+        delta /= (2.0 - rate/0.44);
     }
-
     acceptedSinceTune = 0;
     countSinceTune = 0;
 }

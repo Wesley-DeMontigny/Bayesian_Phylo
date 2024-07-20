@@ -69,7 +69,7 @@ TreeObject::TreeObject(int nt) : numTaxa(nt) {
         {
         Node* p = postOrderSeq[i];
         if (p->getAncestor() != nullptr)
-            this->setBranchLength(p,p->getAncestor(), rng.exponentialRv(5.0));
+                this->setBranchLength(p,p->getAncestor(), rng.exponentialRv(0.2));
         }
 
     // index the interior nodes (the tip nodes are indexed, above)

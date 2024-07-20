@@ -21,6 +21,7 @@ class PhyloCTMC : public AbstractLikelihood{
         double oldLikelihood;
         double currentLikelihood;
     private:
+        int stateSpace;
         Alignment* aln;
         ConditionalLikelihood* condL;
         TransitionProbability* transProb;
