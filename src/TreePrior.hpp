@@ -5,12 +5,13 @@
 #include <set>
 
 class TreeParameter;
+class DoubleParameter;
 
 class TreePrior : public AbstractPrior {
     public:
         TreePrior(void)=delete;
         TreePrior(TreeParameter* t);
-        void setExponentialBranchPrior(double l);
+        void setExponentialBranchPrior(DoubleParameter* l);
         void addMonophyleticConstraint(std::set<int> taxa, double strength);
         double lnPrior() {return currentPrior;}
         void regeneratePrior();
@@ -22,7 +23,8 @@ class TreePrior : public AbstractPrior {
     private:
         std::vector<std::set<int>> monophyleticContraints;
         TreeParameter* tree;
-        double lambda = -1.0;
+        double lambda;
+        DoubleParameter* lambdaParam;
 };
 
 #endif

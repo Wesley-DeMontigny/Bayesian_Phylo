@@ -15,6 +15,8 @@
 #include "IterationTrackerEvent.hpp"
 #include "MoveTreeLocal.hpp"
 #include "JC69Matrix.hpp"
+#include "DoubleParameter.hpp"
+#include "MoveScaleDouble.hpp"
 
 int main(int argc, char* argv[]) {
 
@@ -27,7 +29,7 @@ int main(int argc, char* argv[]) {
 
     TreeParameter treeParam = TreeParameter(&aln);
     TreePrior treePrior(&treeParam);
-    treePrior.setExponentialBranchPrior(0.2);
+    treePrior.setExponentialBranchPrior(&DoubleParameter(0.2));
 
     PhyloCTMC model(&aln, &treeParam, &rateMatrix);
 
@@ -45,7 +47,7 @@ int main(int argc, char* argv[]) {
     burnIn.registerEvent(&IterationTrackerEvent(), 10);
 
     burnIn.initialize();
-    myMCMC.run(5000, &burnIn);
+    myMCMC.run(2000, &burnIn);
 
     EventManager realRun;
     McmcScreenLogEvent screenLogger;

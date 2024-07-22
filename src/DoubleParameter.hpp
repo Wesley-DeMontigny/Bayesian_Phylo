@@ -12,7 +12,7 @@ class DoubleParameter : public AbstractParameter {
         void setLikelihood(AbstractLikelihood* l) {likelihood = l;}
         void regenerate();
         double getValue() {return currentValue;}
-        double setValue(double v) {currentValue = v;}
+        void setValue(double v) {currentValue = v;}
         std::string writeValue() {return std::to_string(currentValue);}
     protected:
         double currentValue;

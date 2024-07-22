@@ -39,7 +39,7 @@ double MoveScaleBranch::update(){
 
     param->regenerate();
 
-    return 0.0;
+    return scale;
 }
 
 void MoveScaleBranch::accept(){

@@ -7,6 +7,8 @@ DoubleParameter::DoubleParameter(void) : currentValue(0.0), oldValue(0.0), likel
 DoubleParameter::DoubleParameter(double v) : currentValue(v), oldValue(v), likelihood(nullptr), prior(nullptr) {}
 
 void DoubleParameter::regenerate() {
-    prior->regeneratePrior();
-    likelihood->regenerateLikelihood();
+    if(prior != nullptr)
+        prior->regeneratePrior();
+    if(likelihood != nullptr)
+        likelihood->regenerateLikelihood();
 }
