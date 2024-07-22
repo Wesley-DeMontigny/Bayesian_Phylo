@@ -10,8 +10,11 @@ class ConditionalLikelihood{
         ConditionalLikelihood(Alignment* aln);
         ~ConditionalLikelihood();
         double* operator()(int n, int s);
+        double* operator[](int n);
+        void flipCL(int n);
     private:
         double* condLikelihoods[2];
+        int* activeCLs;
         int numChar;
         int numNodes;
         int stateSpace;

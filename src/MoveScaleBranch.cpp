@@ -26,18 +26,15 @@ double MoveScaleBranch::update(){
     double newV = currentV * scale;
     tree->setBranchLength(p, p->getAncestor(), newV);
     p->setNeedsTPUpdate(true);
-    p->flipTP();
 
     Node* q = p;
     do{
-        if(q->getIsTip() == false){//The conditional likelihoods at the tips should never change
+        if(q->getIsTip() == false)//The conditional likelihoods at the tips should never change
             q->setNeedsCLUpdate(true);
-            q->flipCL();
-        }
+        
         q = q->getAncestor();
     } 
     while(q != root);
-    root->flipCL();
     root->setNeedsCLUpdate(true);
 
     param->regenerate();

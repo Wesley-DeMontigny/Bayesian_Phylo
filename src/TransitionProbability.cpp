@@ -30,19 +30,6 @@ DoubleMatrix* TransitionProbability::operator()(int s, int n){
     return probs[s][n];
 }
 
-void TransitionProbability::set(int s, int n, double v){
-    DoubleMatrix* P = probs[s][n];
-
-    double expX = std::exp((-4.0/3.0) * v);
-    double p0 = 0.25 + (0.75 * expX);
-    double p1 = 0.25 - (0.25 * expX);
-
-    for(int i = 0; i < 4; i++){
-        for(int j = 0; j < 4; j++){
-            if(i == j)
-                (*P)(i, j) = p0;
-            else
-                (*P)(i, j) = p1;
-        }
-    }
+void TransitionProbability::set(int s, int n, DoubleMatrix m){
+    *probs[s][n] = m;
 }

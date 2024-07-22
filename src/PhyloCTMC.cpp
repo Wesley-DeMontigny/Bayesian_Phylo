@@ -7,13 +7,16 @@
 #include "Node.hpp"
 #include "TreeObject.hpp"
 #include "TreeParameter.hpp"
+#include "RateMatrix.hpp"
 #include <cmath>
 #include <string>
 
-PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t) : aln(a), tree(t), oldLikelihood(0.0), currentLikelihood(0.0) {
+PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t, RateMatrix* m) : aln(a), tree(t), rateMatrix(m), oldLikelihood(0.0), currentLikelihood(0.0) {
+
+    tree->setLikelihood(this);
+    rateMatrix->setLikelihood(this);
 
     TreeObject* activeT = tree->getTree();
-    t->setLikelihood(this);
     stateSpace = aln->getStateSpace();
     if(aln->getNumTaxa() != activeT->getNumTaxa())
         Msg::error("Expected " + std::to_string(aln->getNumTaxa()) + 
@@ -68,17 +71,20 @@ void PhyloCTMC::regenerateLikelihood(){
     TreeObject* activeT = tree->getTree();
 
     std::vector<Node*>&  poSeq = activeT->getPostOrderSeq();
+    bool updateAllTPs = rateMatrix->getNeedsUpdate();
     for(Node* n : poSeq){
         //Only update the conditional likelihoods if the node has changed
-        if(n->getNeedsTPUpdate() == true){
+        if(updateAllTPs == true || n->getNeedsTPUpdate() == true){
             if(n != activeT->getRoot()){
+                n->flipTP();
                 double v = activeT->getBranchLength(n, n->getAncestor());
-                transProb->set(n->getActiveTP(), n->getIndex(), v);
+                transProb->set(n->getActiveTP(), n->getIndex(), rateMatrix->P(v));
             }
             n->setNeedsTPUpdate(false);
         }
         if(n->getNeedsCLUpdate() == true){
             //Get memory address of the node we are looking at and pre-set all of the likelihoods at each site to be 1.0
+            n->flipCL();
             double* pNN = (*condL)(n->getIndex(), n->getActiveCL());
             std::fill(pNN, pNN + (aln->getNumChar() * stateSpace), 1.0);
 
@@ -112,6 +118,8 @@ void PhyloCTMC::regenerateLikelihood(){
             n->setNeedsCLUpdate(false);
         }
     }
+
+    rateMatrix->setNeedsUpdate(false);
 
     //Calculate the likelihood of the tree by summing up the likelihood at the root.
     double* pR = (*condL)(activeT->getRoot()->getIndex(), activeT->getRoot()->getActiveCL());

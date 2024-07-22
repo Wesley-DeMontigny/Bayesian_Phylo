@@ -11,7 +11,7 @@ class TransitionProbability{
         ~TransitionProbability();
         DoubleMatrix* operator()(int s, int n);
         std::vector<double>& getStationaryFreq(){return stationaryFreqs;}
-        void set(int space, int nodeIdx, double v);
+        void set(int s, int n, DoubleMatrix m);
     private:
         int numNodes;
         int stateSpace;

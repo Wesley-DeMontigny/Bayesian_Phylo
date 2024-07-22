@@ -92,13 +92,9 @@ double MoveTreeLocal::update(){
 
     u->setNeedsTPUpdate(true);
     v->setNeedsTPUpdate(true);
-    u->flipTP();
-    v->flipTP();
 
     a->setNeedsTPUpdate(true);
     c->setNeedsTPUpdate(true);
-    a->flipTP();
-    c->flipTP();
 
     //The updating gets a little awkward because we don't really know the branching here.
     Node* q = v;
@@ -107,11 +103,9 @@ double MoveTreeLocal::update(){
 
     do{
         q->setNeedsCLUpdate(true);
-        q->flipCL();
         q = q->getAncestor();
     }
     while(q != root);
-    root->flipCL();
     root->setNeedsCLUpdate(true);
 
     tree->initPostOrder();

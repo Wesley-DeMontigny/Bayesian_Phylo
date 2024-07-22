@@ -66,17 +66,13 @@ double MoveTreeNNI::update(){
         q = a;
         a->setNeedsTPUpdate(true);//Because TP is defined as the branch going to the descendent...
         p->setNeedsTPUpdate(true);//Flipping this internal branch causes a change in the TP!
-        a->flipTP();
-        p->flipTP();
     }
 
     do{
         q->setNeedsCLUpdate(true);
-        q->flipCL();
         q = q->getAncestor();
     }
     while(q != root);
-    root->flipCL();
     root->setNeedsCLUpdate(true);
 
     tree->initPostOrder();

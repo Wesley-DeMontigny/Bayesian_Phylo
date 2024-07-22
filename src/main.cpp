@@ -14,6 +14,7 @@
 #include "McmcScreenLogEvent.hpp"
 #include "IterationTrackerEvent.hpp"
 #include "MoveTreeLocal.hpp"
+#include "JC69Matrix.hpp"
 
 int main(int argc, char* argv[]) {
 
@@ -22,10 +23,13 @@ int main(int argc, char* argv[]) {
 
     Alignment aln("C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/primates_and_galeopterus_cytb.nex");
 
+    JC69Matrix rateMatrix;
+
     TreeParameter treeParam = TreeParameter(&aln);
-    PhyloCTMC model(&aln, &treeParam);
     TreePrior treePrior(&treeParam);
     treePrior.setExponentialBranchPrior(0.2);
+
+    PhyloCTMC model(&aln, &treeParam, &rateMatrix);
 
     MoveTreeNNI nniMove(&treeParam);
     MoveScaleBranch scaleBranchMove(&treeParam);
@@ -41,7 +45,7 @@ int main(int argc, char* argv[]) {
     burnIn.registerEvent(&IterationTrackerEvent(), 10);
 
     burnIn.initialize();
-    myMCMC.run(2500, &burnIn);
+    myMCMC.run(5000, &burnIn);
 
     EventManager realRun;
     McmcScreenLogEvent screenLogger;
@@ -58,5 +62,4 @@ int main(int argc, char* argv[]) {
     myMCMC.run(20000, &realRun);
 
     std::cout << treeParam.getTree()->getNewick() << std::endl;
-
 }

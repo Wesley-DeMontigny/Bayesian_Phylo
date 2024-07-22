@@ -7,11 +7,12 @@ class ConditionalLikelihood;
 class TransitionProbability;
 class Alignment;
 class RandomVariable;
+class RateMatrix;
 
 class PhyloCTMC : public AbstractLikelihood{
     public:
         PhyloCTMC(void) = delete;
-        PhyloCTMC(Alignment* a, TreeParameter* t);
+        PhyloCTMC(Alignment* a, TreeParameter* t, RateMatrix* m);
         ~PhyloCTMC();
         double lnLikelihood() {return currentLikelihood;}
         void regenerateLikelihood();
@@ -22,6 +23,7 @@ class PhyloCTMC : public AbstractLikelihood{
         double currentLikelihood;
     private:
         int stateSpace;
+        RateMatrix* rateMatrix;
         Alignment* aln;
         ConditionalLikelihood* condL;
         TransitionProbability* transProb;
