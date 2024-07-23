@@ -2,8 +2,6 @@
 #include "TuneEvent.hpp"
 #include "Msg.hpp"
 
-TuneEvent::TuneEvent(void) :  moveScheduler(nullptr) {}
-
 TuneEvent::TuneEvent(MoveScheduler* m) : moveScheduler(m) {}
 
 void TuneEvent::initialize() {

@@ -13,6 +13,7 @@ class RateParameter : public DoubleParameter {
         void setPrior(AbstractPrior* p) {prior = p;}
         void setLikelihood(AbstractLikelihood* l) {likelihood = l;}
         void setRateMatrix(RateMatrix* m);
+        RateMatrix* getRateMatrix() {return matrix;}
         void regenerate();
         double getValue() {return currentValue;}
         double setValue(double v) {currentValue = v;}

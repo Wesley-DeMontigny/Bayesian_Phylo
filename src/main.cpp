@@ -50,14 +50,9 @@ int main(int argc, char* argv[]) {
     myMCMC.run(2000, &burnIn);
 
     EventManager realRun;
-    McmcScreenLogEvent screenLogger;
-    screenLogger.setLikelihood(&model);
-    screenLogger.setPrior(&treePrior);
+    McmcScreenLogEvent screenLogger(&model, &treePrior);
     realRun.registerEvent(&screenLogger, 100);
-    McmcFileLogEvent fileLogger;
-    fileLogger.setLikelihood(&model);
-    fileLogger.setPrior(&treePrior);
-    fileLogger.setFile("C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/test_mcmc.log");
+    McmcFileLogEvent fileLogger(&model, &treePrior, "C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/test_mcmc.log");
     realRun.registerEvent(&fileLogger, 10);
     
     realRun.initialize();

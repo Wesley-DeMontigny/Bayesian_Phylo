@@ -10,14 +10,11 @@ class AbstractParameter;
 
 class McmcFileLogEvent : public AbstractEvent{
     public:
-        McmcFileLogEvent(void);
-        McmcFileLogEvent(AbstractLikelihood* l, AbstractPrior* p, std::vector<std::pair<std::string, AbstractParameter*>> params);
+        McmcFileLogEvent(void)=delete;
+        McmcFileLogEvent(AbstractLikelihood* l, AbstractPrior* p, std::string f);
+        McmcFileLogEvent(AbstractLikelihood* l, AbstractPrior* p, std::vector<std::pair<std::string, AbstractParameter*>> params, std::string f);
         void initialize();
         void call(int iteration);
-        void setLikelihood(AbstractLikelihood* l) {likelihood = l;}
-        void setPrior(AbstractPrior* p) {prior = p;}
-        void addParameter(std::string name, AbstractParameter* p) {parameters.push_back(std::make_pair(name, p));}
-        void setFile(std::string dir) {file = dir;}
     private:
         AbstractLikelihood* likelihood;
         AbstractPrior* prior;

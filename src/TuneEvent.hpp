@@ -6,11 +6,10 @@ class MoveScheduler;
 
 class TuneEvent : public AbstractEvent{
     public:
-        TuneEvent(void);
+        TuneEvent(void)=delete;
         TuneEvent(MoveScheduler* m);
         void initialize();
         void call(int iteration);
-        void setMoveScheduler(MoveScheduler* m) {moveScheduler = m;}
     private:
         MoveScheduler* moveScheduler;
 };

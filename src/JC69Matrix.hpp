@@ -15,6 +15,7 @@ class JC69Matrix : public RateMatrix {
         void setPrior(AbstractPrior* p) {prior = p;}
         void setLikelihood(AbstractLikelihood* l) {likelihood = l;}
         void regenerate();
+        void initialize();
         std::string writeValue() {return "";}//There are no parameters to print...
     protected:
         AbstractPrior* prior;
