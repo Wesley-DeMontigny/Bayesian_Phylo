@@ -66,7 +66,7 @@ PhyloCTMC::~PhyloCTMC(){
     delete transProb;
 }
 
-void PhyloCTMC::regenerateLikelihood(){
+void PhyloCTMC::regenerateLikelihood(bool flip){
 
     TreeObject* activeT = tree->getTree();
 
@@ -76,15 +76,17 @@ void PhyloCTMC::regenerateLikelihood(){
         //Only update the conditional likelihoods if the node has changed
         if(updateAllTPs == true || n->getNeedsTPUpdate() == true){
             if(n != activeT->getRoot()){
-                n->flipTP();
+                if(flip)//The benefit of having an optional flip is that when it comes to something like the leapfrog integrator, we need to flip only once and then make sure we are overwriting at each "leap"
+                    n->flipTP();
                 double v = activeT->getBranchLength(n, n->getAncestor());
                 transProb->set(n->getActiveTP(), n->getIndex(), rateMatrix->P(v));
             }
             n->setNeedsTPUpdate(false);
         }
-        if(n->getNeedsCLUpdate() == true){
+        if(n->getNeedsCLUpdate() == true || n->getNeedsTPUpdate() == true){
             //Get memory address of the node we are looking at and pre-set all of the likelihoods at each site to be 1.0
-            n->flipCL();
+            if(flip)
+                n->flipCL();
             double* pNN = (*condL)(n->getIndex(), n->getActiveCL());
             std::fill(pNN, pNN + (aln->getNumChar() * stateSpace), 1.0);
 
@@ -136,4 +138,8 @@ void PhyloCTMC::regenerateLikelihood(){
     }
 
     currentLikelihood = lnL;
+}
+
+void PhyloCTMC::regenerateLikelihood(){
+    regenerateLikelihood(true);
 }

@@ -7,7 +7,8 @@
 #include <vector>
 #include <iostream>
 
-McmcScreenLogEvent::McmcScreenLogEvent(void) :  prior(nullptr), likelihood(nullptr) {}
+McmcScreenLogEvent::McmcScreenLogEvent(AbstractLikelihood* l, AbstractPrior* p) : prior(p), likelihood(l) {}
+
 
 McmcScreenLogEvent::McmcScreenLogEvent(AbstractLikelihood* l, AbstractPrior* p, std::vector<std::pair<std::string, AbstractParameter*>> params) : prior(p), likelihood(l), parameters(params) {}
 

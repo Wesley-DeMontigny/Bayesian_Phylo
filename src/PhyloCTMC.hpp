@@ -16,8 +16,11 @@ class PhyloCTMC : public AbstractLikelihood{
         ~PhyloCTMC();
         double lnLikelihood() {return currentLikelihood;}
         void regenerateLikelihood();
+        void regenerateLikelihood(bool flip = true);
         void acceptLikelihood() {oldLikelihood = currentLikelihood;}
         void rejectLikelihood() {currentLikelihood = oldLikelihood;}
+        TransitionProbability* getTransitionProbability() {return transProb;}
+        ConditionalLikelihood* getConditionalLikelihood() {return condL;}
     protected:
         double oldLikelihood;
         double currentLikelihood;

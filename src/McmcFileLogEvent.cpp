@@ -7,9 +7,9 @@
 #include <vector>
 #include <fstream>
 
-McmcFileLogEvent::McmcFileLogEvent(void) :  prior(nullptr), likelihood(nullptr) {}
+McmcFileLogEvent::McmcFileLogEvent(AbstractLikelihood* l, AbstractPrior* p, std::string f) : prior(p), likelihood(l), file(f) {}
 
-McmcFileLogEvent::McmcFileLogEvent(AbstractLikelihood* l, AbstractPrior* p, std::vector<std::pair<std::string, AbstractParameter*>> params) : prior(p), likelihood(l), parameters(params) {}
+McmcFileLogEvent::McmcFileLogEvent(AbstractLikelihood* l, AbstractPrior* p, std::vector<std::pair<std::string, AbstractParameter*>> params, std::string f) : prior(p), likelihood(l), parameters(params), file(f) {}
 
 void McmcFileLogEvent::initialize() {
     if(prior == nullptr || likelihood == nullptr)

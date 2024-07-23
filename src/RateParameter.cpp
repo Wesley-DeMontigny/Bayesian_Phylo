@@ -5,8 +5,6 @@
 
 void RateParameter::regenerate(){
     prior->regeneratePrior();
-    //likelihood->regenerateLikelihood(); 
-    //I don't think we should let the individual rates regenerate the likelihood - just the matrix.
     matrix->regenerate();
     matrix->setNeedsUpdate(true);
 }

@@ -16,6 +16,7 @@ class RateMatrix : public AbstractParameter {
         virtual void setPrior(AbstractPrior* p)=0;
         virtual void setLikelihood(AbstractLikelihood* l)=0;
         virtual void regenerate()=0;
+        virtual void initialize()=0;//Eigen value stuff.
         virtual std::string writeValue()=0;
     protected:
         AbstractPrior* prior;
