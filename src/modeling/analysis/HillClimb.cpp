@@ -1,8 +1,7 @@
 #include "HillClimb.hpp"
-#include "AbstractLikelihood.hpp"
-#include "AbstractParameter.hpp"
-#include "MoveScheduler.hpp"
-#include "AbstractMove.hpp"
+#include "modeling/likelihoods/LikelihoodNode.hpp"
+#include "moves/MoveScheduler.hpp"
+#include "moves/Move.hpp"
 #include <cmath>
 #include <iostream>
 
@@ -11,13 +10,15 @@ HillClimb::HillClimb(int nC, int pF, LikelihoodNode* lD, MoveScheduler* mS) : nu
 
 void HillClimb::run(){
 
-    likelihood->regenerateLikelihood();
-    likelihood->acceptLikelihood();
+    likelihood->regenerate();
+    likelihood->accept();
+    likelihood->clean();
     double currentLnLikelihood = likelihood->lnLikelihood();
 
     for(int n = 1; n <= numCycles; n++){
         Move* m = moveScheduler->getMove();
         m->update();
+        likelihood->regenerate();
         double newLnLikelihood = likelihood->lnLikelihood();
 
         bool acceptMove = false;
@@ -28,11 +29,15 @@ void HillClimb::run(){
             std::cout << n << " " << currentLnLikelihood << " -> " << newLnLikelihood << std::endl;
 
         if(acceptMove == true){
-            m->accept();
+            m->markAccepted();
+            likelihood->accept();
+            likelihood->clean();
             currentLnLikelihood = newLnLikelihood;
         }
         else{
-            m->reject();
+            m->markRejected();
+            likelihood->reject();
+            likelihood->clean();
         }
 
     }

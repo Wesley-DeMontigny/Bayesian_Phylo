@@ -23,6 +23,7 @@ template<typename... Args>
 TreeParameter::TreeParameter(Args&&... args)
     : trees{new TreeObject(std::forward<Args>(args)...), nullptr} {
     trees[1] = new TreeObject(*trees[0]);
+    dirty();
 }
 
 #endif

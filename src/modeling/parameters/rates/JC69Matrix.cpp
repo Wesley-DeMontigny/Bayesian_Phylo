@@ -1,7 +1,9 @@
 #include "JC69Matrix.hpp"
 #include "core/DoubleMatrix.hpp"
 
-JC69Matrix::JC69Matrix() {}
+JC69Matrix::JC69Matrix() {
+    dirty();
+}
 
 //This will actually be important when we need to recalculate eigen values
 void JC69Matrix::regenerate() {}

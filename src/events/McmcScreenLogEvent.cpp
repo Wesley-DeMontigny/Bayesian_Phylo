@@ -8,12 +8,16 @@
 McmcScreenLogEvent::McmcScreenLogEvent(std::vector<std::pair<std::string, ModelNode*>> n) : nodes(n) {}
 
 void McmcScreenLogEvent::initialize() {
+    std::cout << "Iteration";
+
     for(std::pair<std::string, ModelNode*> entry : nodes)
         std::cout << "\t" << entry.first;
     std::cout << std::endl;
 }
 
 void McmcScreenLogEvent::call(int iteration) {
+    std::cout << iteration;
+
     for(std::pair<std::string, ModelNode*> entry : nodes)
         std::cout << "\t" << entry.second->writeValue();
     std::cout << std::endl;

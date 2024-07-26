@@ -16,8 +16,8 @@ class PhyloCTMC : public LikelihoodNode{
         ~PhyloCTMC();
         double lnLikelihood() {return currentLikelihood;}
         void regenerate();
-        void accept() {oldLikelihood = currentLikelihood;}
-        void reject() {currentLikelihood = oldLikelihood;}
+        void accept();
+        void reject();
         TransitionProbability* getTransitionProbability() {return transProb;}
         ConditionalLikelihood* getConditionalLikelihood() {return condL;}
         std::string writeValue() {return std::to_string(currentLikelihood);}

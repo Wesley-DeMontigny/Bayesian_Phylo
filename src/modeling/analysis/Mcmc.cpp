@@ -14,6 +14,7 @@ void Mcmc::run(int numCycles, EventManager* e){
 
     posterior->regenerate();
     posterior->accept();
+    posterior->clean();
     double currentLnPosterior = posterior->lnPosterior();
 
     for(int n = 1; n <= numCycles; n++){
@@ -32,10 +33,13 @@ void Mcmc::run(int numCycles, EventManager* e){
         if(acceptMove == true){
             m->markAccepted();
             posterior->accept();
+            posterior->clean();
+            currentLnPosterior = newLnPosterior;
         }
         else{
             m->markRejected();
             posterior->reject();
+            posterior->clean();
         }
 
         e->call(n);

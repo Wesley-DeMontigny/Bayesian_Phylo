@@ -15,13 +15,12 @@ class TreePrior : public PriorNode {
         void addMonophyleticConstraint(std::set<int> taxa, double strength);
         double lnPrior() {return currentPrior;}
         void regenerate();
-        void accept() {oldPrior = currentPrior;}
-        void reject() {currentPrior = oldPrior;}
-        std::string writeValue() {std::to_string(currentPrior);}
+        void accept();
+        void reject();
+        std::string writeValue() {return std::to_string(currentPrior);}
     protected:
         double oldPrior;
         double currentPrior;
-        void addChild(ModelNode* c);
         DoubleParameter* lambda;
         TreeParameter* tree;
         std::vector<std::set<int>> monophyleticContraints;

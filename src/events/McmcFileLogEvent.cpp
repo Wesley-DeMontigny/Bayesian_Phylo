@@ -11,6 +11,8 @@ void McmcFileLogEvent::initialize() {
     std::fstream fs;
     fs.open (file, std::fstream::out);
 
+    fs << "Iteration";
+
     for(std::pair<std::string, ModelNode*> entry : nodes)
         fs << "\t" << entry.first;
     fs << "\n";
@@ -21,6 +23,8 @@ void McmcFileLogEvent::initialize() {
 void McmcFileLogEvent::call(int iteration) {
     std::fstream fs;
     fs.open (file, std::fstream::app);
+
+    fs << iteration;
 
     for(std::pair<std::string, ModelNode*> entry : nodes)
         fs << "\t" << entry.second->writeValue();
