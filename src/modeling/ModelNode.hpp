@@ -10,14 +10,14 @@ class ModelNode {
         virtual void reject()=0;
         virtual void regenerate()=0;
         virtual std::string writeValue()=0;
-        void clean() {d = false;}
-        void dirty() {d = true;}
-        bool isDirty() {return d;}
+        void clean() {dirtyFlag = false;}
+        void dirty() {dirtyFlag = true;}
+        bool isDirty() {return dirtyFlag;}
     protected:
         void addChild(ModelNode* c) {children.push_back(c);}
     private:
         std::vector<ModelNode*> children;
-        bool d;
+        bool dirtyFlag;
 };
 
 #endif

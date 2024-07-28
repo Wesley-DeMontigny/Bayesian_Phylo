@@ -44,14 +44,13 @@ int main(int argc, char* argv[]) {
     PosteriorNode posterior(&ctmc, &treePrior);
 
     Mcmc myMCMC(&posterior, &moveScheduler);
-    /*
+
     EventManager burnIn;
     burnIn.registerEvent(&TuneEvent(&moveScheduler), 100);
     burnIn.registerEvent(&IterationTrackerEvent(), 10);
 
     burnIn.initialize();
-    myMCMC.run(2000, &burnIn);
-    */
+    myMCMC.run(5000, &burnIn);
 
     std::vector<std::pair<std::string, ModelNode*>> loggables;
     loggables.push_back(std::make_pair("Prior", &treePrior));
@@ -61,13 +60,12 @@ int main(int argc, char* argv[]) {
     EventManager realRun;
     McmcScreenLogEvent screenLogger(loggables);
     realRun.registerEvent(&screenLogger, 1);
-    /*
+
     McmcFileLogEvent fileLogger(loggables, "C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/test_mcmc.log");
     realRun.registerEvent(&fileLogger, 10);
-    */
     
     realRun.initialize();
-    myMCMC.run(100, &realRun);
+    myMCMC.run(20000, &realRun);
 
     std::cout << treeParam.getTree()->getNewick() << std::endl;
 }

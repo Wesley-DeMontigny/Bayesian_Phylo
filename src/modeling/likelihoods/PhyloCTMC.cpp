@@ -85,9 +85,9 @@ void PhyloCTMC::reject() {
 
 void PhyloCTMC::regenerate(){
     for(ModelNode* c : this->getChildren()){
+        c->regenerate();
         if(c->isDirty())
             this->dirty();
-        c->regenerate();
     }
 
     if(this->isDirty()){

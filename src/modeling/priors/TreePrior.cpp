@@ -3,6 +3,7 @@
 #include "modeling/parameters/trees/Node.hpp"
 #include "modeling/parameters/DoubleParameter.hpp"
 #include <cmath>
+#include <iostream>
 
 TreePrior::TreePrior(TreeParameter* t) : currentPrior(0.0), oldPrior(0.0), lambda(nullptr), tree(t) {
     this->addChild(t);
@@ -36,10 +37,11 @@ void TreePrior::reject() {
 
 void TreePrior::regenerate(){
     for(ModelNode* c : this->getChildren()){
+        c->regenerate();
         if(c->isDirty())
             this->dirty();
-        c->regenerate();
     }
+
 
     if(this->isDirty()){
 
