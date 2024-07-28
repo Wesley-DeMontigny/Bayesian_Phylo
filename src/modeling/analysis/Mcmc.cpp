@@ -26,7 +26,6 @@ void Mcmc::run(int numCycles, EventManager* e){
         double lnPosteriorRatio = newLnPosterior - currentLnPosterior;
         double lnR = lnProposalRatio + lnPosteriorRatio;
 
-        bool acceptMove = false;
         if(std::log(rng.uniformRv()) < lnR){
             m->markAccepted();
             posterior->accept();

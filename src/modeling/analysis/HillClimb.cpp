@@ -2,13 +2,14 @@
 #include "modeling/likelihoods/LikelihoodNode.hpp"
 #include "moves/MoveScheduler.hpp"
 #include "moves/Move.hpp"
+#include "events/EventManager.hpp"
 #include <cmath>
 #include <iostream>
 
-HillClimb::HillClimb(int nC, int pF, LikelihoodNode* lD, MoveScheduler* mS) : numCycles(nC), printFreq(pF), likelihood(lD), moveScheduler(mS) {   }
+HillClimb::HillClimb(LikelihoodNode* lD, MoveScheduler* mS) : likelihood(lD), moveScheduler(mS) {   }
 
 
-void HillClimb::run(){
+void HillClimb::run(int numCycles, EventManager* e){
 
     likelihood->regenerate();
     likelihood->accept();
@@ -21,14 +22,7 @@ void HillClimb::run(){
         likelihood->regenerate();
         double newLnLikelihood = likelihood->lnLikelihood();
 
-        bool acceptMove = false;
-        if(newLnLikelihood > currentLnLikelihood)
-            acceptMove = true;
-
-        if(n % printFreq == 0)
-            std::cout << n << " " << currentLnLikelihood << " -> " << newLnLikelihood << std::endl;
-
-        if(acceptMove == true){
+        if(newLnLikelihood > currentLnLikelihood){
             m->markAccepted();
             likelihood->accept();
             likelihood->clean();

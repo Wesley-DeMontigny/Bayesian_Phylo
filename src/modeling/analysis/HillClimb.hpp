@@ -3,16 +3,15 @@
 
 class MoveScheduler;
 class LikelihoodNode;
+class EventManager;
 
 class HillClimb{
     public:
         HillClimb(void)=delete;
-        HillClimb(int nC, int pF, LikelihoodNode* lD, MoveScheduler* mS);
-        void run();
+        HillClimb(LikelihoodNode* lD, MoveScheduler* mS);
+        void run(int numCycles, EventManager* e);
     private:
         MoveScheduler* moveScheduler;
-        int numCycles;
-        int printFreq;
         LikelihoodNode* likelihood;
 };
 

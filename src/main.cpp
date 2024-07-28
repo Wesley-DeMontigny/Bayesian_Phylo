@@ -46,7 +46,7 @@ int main(int argc, char* argv[]) {
     Mcmc myMCMC(&posterior, &moveScheduler);
 
     EventManager burnIn;
-    burnIn.registerEvent(&TuneEvent(&moveScheduler), 100);
+    burnIn.registerEvent(&TuneEvent(&moveScheduler), 500);
     burnIn.registerEvent(&IterationTrackerEvent(), 10);
 
     burnIn.initialize();

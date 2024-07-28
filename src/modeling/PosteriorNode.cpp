@@ -2,37 +2,33 @@
 #include <iostream>
 
 PosteriorNode::PosteriorNode(LikelihoodNode* lN, PriorNode* pN) : likelihood(lN), prior(pN), currentLnPosterior(0.0), oldLnPosterior(0.0) {
-    this->addChild(lN);
-    this->addChild(pN);
     this->dirty();
 }
 
 void PosteriorNode::accept() {
-    for(ModelNode* c : this->getChildren()){
-        c->accept();
-        c->clean();
-    }
-
     oldLnPosterior = currentLnPosterior;
+
+    likelihood->accept();
+    likelihood->clean();
+    prior->accept();
+    prior->clean();
 }
 
 void PosteriorNode::reject() {
-    for(ModelNode* c : this->getChildren()){
-        c->reject();
-        c->clean();
-    }
-
     currentLnPosterior = oldLnPosterior;
+
+    likelihood->reject();
+    likelihood->clean();
+    prior->reject();
+    prior->clean();
 }
 
 void PosteriorNode::regenerate(){
-    for(ModelNode* c : this->getChildren()){
-        c->regenerate();
-        if(c->isDirty())
-            this->dirty();
-    }
+    likelihood->regenerate();
+    prior->regenerate();
+    if(prior->isDirty() || likelihood->isDirty())
+        this->dirty();
 
-    if(this->isDirty()){
+    if(this->isDirty())
         currentLnPosterior = likelihood->lnLikelihood() + prior->lnPrior();
-    }
 }

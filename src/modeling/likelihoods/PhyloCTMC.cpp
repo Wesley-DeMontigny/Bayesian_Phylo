@@ -14,8 +14,6 @@
 PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t, RateMatrix* m) : aln(a), tree(t), rateMatrix(m), oldLikelihood(0.0), currentLikelihood(0.0) {
 
     this->dirty();
-    addChild(t);
-    addChild(m);
 
     TreeObject* activeT = tree->getTree();
     stateSpace = aln->getStateSpace();
@@ -53,7 +51,7 @@ PhyloCTMC::PhyloCTMC(Alignment* a, TreeParameter* t, RateMatrix* m) : aln(a), tr
         }
     }
 
-    tree->accept(); //Accept the tip changes into memory (if any happened)
+    tree->accept(); //Accept the tip changes into memory tree (if any happened)
 
     condL = new ConditionalLikelihood(aln);
     transProb = new TransitionProbability(2 * aln->getNumTaxa() - 1, stateSpace);
@@ -69,26 +67,27 @@ PhyloCTMC::~PhyloCTMC(){
 
 void PhyloCTMC::accept() {
     oldLikelihood = currentLikelihood;
-    for(ModelNode* c : this->getChildren()){
-        c->accept();
-        c->clean();
-    }
+
+    tree->accept();
+    tree->clean();
+    rateMatrix->accept();
+    rateMatrix->clean();
 }
 
 void PhyloCTMC::reject() {
     currentLikelihood = oldLikelihood;
-    for(ModelNode* c : this->getChildren()){
-        c->reject();
-        c->clean();
-    }
+
+    tree->reject();
+    tree->clean();
+    rateMatrix->reject();
+    rateMatrix->clean();
 }
 
 void PhyloCTMC::regenerate(){
-    for(ModelNode* c : this->getChildren()){
-        c->regenerate();
-        if(c->isDirty())
-            this->dirty();
-    }
+    tree->regenerate();
+    rateMatrix->regenerate();
+    if(tree->isDirty() || rateMatrix->isDirty())
+        this->dirty();
 
     if(this->isDirty()){
         bool updateAllTPs = rateMatrix->isDirty();

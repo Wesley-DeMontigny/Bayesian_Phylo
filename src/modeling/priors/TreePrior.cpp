@@ -6,12 +6,10 @@
 #include <iostream>
 
 TreePrior::TreePrior(TreeParameter* t) : currentPrior(0.0), oldPrior(0.0), lambda(nullptr), tree(t) {
-    this->addChild(t);
     this->dirty();
 }
 
 void TreePrior::setExponentialBranchPrior(DoubleParameter* l){
-    addChild(l);
     lambda = l;
 }
 
@@ -21,33 +19,45 @@ void TreePrior::addMonophyleticConstraint(std::set<int> taxa, double strength){
 
 void TreePrior::accept() {
     oldLnPrior = currentLnPrior;
-    for(ModelNode* c : this->getChildren()){
-         c->accept();
-         c->clean();
+    tree->accept();
+    tree->clean();
+    if(lambda != nullptr){
+        lambda->accept();
+        lambda->clean();
     }
 }
 
 void TreePrior::reject() {
     currentLnPrior = oldLnPrior;
-    for(ModelNode* c : this->getChildren()){
-        c->reject();
-        c->clean();
+    tree->reject();
+    tree->clean();
+    if(lambda != nullptr){
+        lambda->reject();
+        lambda->clean();
     }
 }
 
 void TreePrior::regenerate(){
-    for(ModelNode* c : this->getChildren()){
-        c->regenerate();
-        if(c->isDirty())
+    tree->regenerate();
+
+    //This isn't pretty. The tree prior should eventually be split between a branch length and topology prior.
+    bool hasLambda = lambda != nullptr;
+    if(hasLambda){
+        lambda->regenerate();
+        if(tree->isDirty() || lambda->isDirty())
             this->dirty();
     }
-
+    else{
+        if(tree->isDirty())
+            this->dirty();
+    }
+    
 
     if(this->isDirty()){
 
         double totalLnL = 0.0;
 
-        if(lambda != nullptr){
+        if(hasLambda){
             std::vector<double*> values = tree->getBranchLengths();
             double lambdaVal = lambda->getValue();
             for(double* val : values){
