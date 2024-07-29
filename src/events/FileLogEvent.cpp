@@ -1,13 +1,13 @@
-#include "McmcFileLogEvent.hpp"
+#include "FileLogEvent.hpp"
 #include "modeling/ModelNode.hpp"
 #include "core/Msg.hpp"
 #include <string>
 #include <vector>
 #include <fstream>
 
-McmcFileLogEvent::McmcFileLogEvent(std::vector<std::pair<std::string, ModelNode*>> n, std::string f) : nodes(n), file(f) {}
+FileLogEvent::FileLogEvent(std::vector<std::pair<std::string, ModelNode*>> n, std::string f) : nodes(n), file(f) {}
 
-void McmcFileLogEvent::initialize() {
+void FileLogEvent::initialize() {
     std::fstream fs;
     fs.open (file, std::fstream::out);
 
@@ -20,7 +20,7 @@ void McmcFileLogEvent::initialize() {
     fs.close();
 }
 
-void McmcFileLogEvent::call(int iteration) {
+void FileLogEvent::call(int iteration) {
     std::fstream fs;
     fs.open (file, std::fstream::app);
 

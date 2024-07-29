@@ -10,6 +10,7 @@ class HillClimb{
         HillClimb(void)=delete;
         HillClimb(LikelihoodNode* lD, MoveScheduler* mS);
         void run(int numCycles, EventManager* e);
+        void run(EventManager* e);
     private:
         MoveScheduler* moveScheduler;
         LikelihoodNode* likelihood;

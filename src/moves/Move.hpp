@@ -9,6 +9,7 @@ class Move{
         virtual void tune()=0;
         void markAccepted() {acceptedSinceTune++; acceptedCount++; countSinceTune++;}
         void markRejected() {countSinceTune++; rejectedCount++;}
+        void clearRecord() {countSinceTune = 0; acceptedCount = 0; acceptedSinceTune = 0; rejectedCount = 0;}
     protected:
         int countSinceTune = 0;
         int acceptedSinceTune = 0;

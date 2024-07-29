@@ -7,6 +7,17 @@ TreeParameter::~TreeParameter(){
     delete trees[1]; 
 }
 
+TreeParameter& TreeParameter::operator=(const TreeParameter& t){
+    if(this == &t)
+        return *this;
+
+    const TreeObject* activeTree = t.getTreeConst();
+    *trees[0] = *activeTree;
+    *trees[1] = *activeTree;
+
+    return *this;
+}
+
 void TreeParameter::accept(){
     *trees[1] = *trees[0];
 }

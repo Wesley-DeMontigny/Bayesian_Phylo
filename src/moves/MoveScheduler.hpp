@@ -14,6 +14,7 @@ class MoveScheduler {
         void registerMove(Move* m);
         //void registerMove(AbstractMove* m, int w);
         void tune();
+        void clearRecord();
     private:
         //std::vector<int> weights;
         std::vector<Move*> moveHandlers;

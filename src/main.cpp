@@ -7,8 +7,8 @@
 #include "moves/MoveScaleDouble.hpp"
 #include "events/EventManager.hpp"
 #include "events/TuneEvent.hpp"
-#include "events/McmcFileLogEvent.hpp"
-#include "events/McmcScreenLogEvent.hpp"
+#include "events/FileLogEvent.hpp"
+#include "events/ScreenLogEvent.hpp"
 #include "events/IterationTrackerEvent.hpp"
 #include "modeling/parameters/trees/TreeParameter.hpp"
 #include "modeling/parameters/rates/JC69Matrix.hpp"
@@ -17,6 +17,7 @@
 #include "modeling/priors/TreePrior.hpp"
 #include "modeling/PosteriorNode.hpp"
 #include "modeling/analysis/Mcmc.hpp"
+#include "modeling/analysis/PerturbedHillClimb.hpp"
 
 
 int main(int argc, char* argv[]) {
@@ -28,7 +29,9 @@ int main(int argc, char* argv[]) {
 
     JC69Matrix rateMatrix;
 
-    TreeParameter treeParam = TreeParameter(&aln);
+    TreeParameter randomTree(&aln);
+
+    TreeParameter treeParam(*randomTree.getTree());
     TreePrior treePrior(&treeParam);
     treePrior.setExponentialBranchPrior(&DoubleParameter(0.2));
 
@@ -58,14 +61,11 @@ int main(int argc, char* argv[]) {
     loggables.push_back(std::make_pair("Posterior", &posterior));
 
     EventManager realRun;
-    McmcScreenLogEvent screenLogger(loggables);
-    realRun.registerEvent(&screenLogger, 1);
-
-    McmcFileLogEvent fileLogger(loggables, "C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/test_mcmc.log");
+    ScreenLogEvent screenLogger(loggables);
+    realRun.registerEvent(&screenLogger, 100);
+    FileLogEvent fileLogger(loggables, "C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/test_mcmc.log");
     realRun.registerEvent(&fileLogger, 10);
     
     realRun.initialize();
     myMCMC.run(20000, &realRun);
-
-    std::cout << treeParam.getTree()->getNewick() << std::endl;
 }

@@ -9,7 +9,9 @@ class TreeParameter : public ModelNode{
         TreeParameter(void)=delete;
         template<typename... Args> TreeParameter(Args&&... args);
         ~TreeParameter();
+        TreeParameter& operator=(const TreeParameter& t);
         TreeObject* getTree(){return trees[0];}
+        const TreeObject* getTreeConst() const {return trees[0];}
         std::vector<double*> getBranchLengths();
         void accept();
         void reject();

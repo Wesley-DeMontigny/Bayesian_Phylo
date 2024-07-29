@@ -20,7 +20,11 @@ Move* MoveScheduler::getMove(){
 
 void MoveScheduler::registerMove(Move* m){
     moveHandlers.push_back(m);
-    //weights.push_back(1.0);
+}
+
+void MoveScheduler::clearRecord(){
+    for(Move* m : moveHandlers)
+        m->clearRecord();
 }
 
 void MoveScheduler::tune(){

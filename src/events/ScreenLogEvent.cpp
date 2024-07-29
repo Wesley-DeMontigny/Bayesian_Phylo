@@ -1,13 +1,13 @@
-#include "McmcScreenLogEvent.hpp"
+#include "ScreenLogEvent.hpp"
 #include "modeling/ModelNode.hpp"
 #include "core/Msg.hpp"
 #include <string>
 #include <vector>
 #include <iostream>
 
-McmcScreenLogEvent::McmcScreenLogEvent(std::vector<std::pair<std::string, ModelNode*>> n) : nodes(n) {}
+ScreenLogEvent::ScreenLogEvent(std::vector<std::pair<std::string, ModelNode*>> n) : nodes(n) {}
 
-void McmcScreenLogEvent::initialize() {
+void ScreenLogEvent::initialize() {
     std::cout << "Iteration";
 
     for(std::pair<std::string, ModelNode*> entry : nodes)
@@ -15,7 +15,7 @@ void McmcScreenLogEvent::initialize() {
     std::cout << std::endl;
 }
 
-void McmcScreenLogEvent::call(int iteration) {
+void ScreenLogEvent::call(int iteration) {
     std::cout << iteration;
 
     for(std::pair<std::string, ModelNode*> entry : nodes)
