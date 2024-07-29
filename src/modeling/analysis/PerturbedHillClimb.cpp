@@ -61,7 +61,7 @@ void PerturbedHillClimb::run(int qC, EventManager* e, Event* bME){
             count++;
         }
 
-        for(int i = 0; i < 50; i++){
+        for(int i = 0; i < 100; i++){
             Move* m = moveScheduler->getMove();
             m->update();
         }

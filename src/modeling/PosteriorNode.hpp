@@ -7,7 +7,7 @@
 class PosteriorNode : public ModelNode {
     public:
         PosteriorNode(void)=delete;
-        PosteriorNode(LikelihoodNode* lN, PriorNode* pN);//May want to modify this to accept multiple priors and likelihoods
+        PosteriorNode(LikelihoodNode* lN, std::vector<PriorNode*> pN);//May want to modify this to accept multiple priors and likelihoods
         void accept();
         void reject();
         void regenerate();
@@ -15,7 +15,7 @@ class PosteriorNode : public ModelNode {
         std::string writeValue() {return std::to_string(currentLnPosterior);}
     private:
         LikelihoodNode* likelihood;
-        PriorNode* prior;
+        std::vector<PriorNode*> priors;
         double currentLnPosterior;
         double oldLnPosterior;
 };

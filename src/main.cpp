@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     moveScheduler.registerMove(&scaleBranchMove);
     moveScheduler.registerMove(&localMove);
 
-    PosteriorNode posterior(&ctmc, &treePrior);
+    PosteriorNode posterior(&ctmc, {&treePrior});
 
     Mcmc myMCMC(&posterior, &moveScheduler);
 

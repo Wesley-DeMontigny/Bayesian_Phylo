@@ -1,7 +1,7 @@
 #include "PosteriorNode.hpp"
 #include <iostream>
 
-PosteriorNode::PosteriorNode(LikelihoodNode* lN, PriorNode* pN) : likelihood(lN), prior(pN), currentLnPosterior(0.0), oldLnPosterior(0.0) {
+PosteriorNode::PosteriorNode(LikelihoodNode* lN, std::vector<PriorNode*> pN) : likelihood(lN), priors(pN), currentLnPosterior(0.0), oldLnPosterior(0.0) {
     this->dirty();
 }
 
@@ -10,8 +10,10 @@ void PosteriorNode::accept() {
 
     likelihood->accept();
     likelihood->clean();
-    prior->accept();
-    prior->clean();
+    for(PriorNode* p : priors){
+        p->accept();
+        p->clean();
+    }
 }
 
 void PosteriorNode::reject() {
@@ -19,16 +21,27 @@ void PosteriorNode::reject() {
 
     likelihood->reject();
     likelihood->clean();
-    prior->reject();
-    prior->clean();
+    for(PriorNode* p : priors){
+        p->accept();
+        p->clean();
+    }
 }
 
 void PosteriorNode::regenerate(){
     likelihood->regenerate();
-    prior->regenerate();
-    if(prior->isDirty() || likelihood->isDirty())
+    bool pDirty = false;
+    for(PriorNode* p : priors){
+        p->regenerate();
+        if(p->isDirty())
+            pDirty = true;
+    }
+    if(pDirty || likelihood->isDirty())
         this->dirty();
 
-    if(this->isDirty())
-        currentLnPosterior = likelihood->lnLikelihood() + prior->lnPrior();
+    if(this->isDirty()){
+        double pTotal = 0.0;
+        for(PriorNode* p : priors)
+            pTotal += p->lnPrior();
+        currentLnPosterior = likelihood->lnLikelihood() + pTotal;
+    }
 }
