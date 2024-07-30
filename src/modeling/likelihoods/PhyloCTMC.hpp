@@ -26,6 +26,8 @@ class PhyloCTMC : public LikelihoodNode{
         double currentLikelihood;
     private:
         int stateSpace;
+        bool* activeTP;
+        bool* activeCL;
         RateMatrix* rateMatrix;
         Alignment* aln;
         ConditionalLikelihood* condL;

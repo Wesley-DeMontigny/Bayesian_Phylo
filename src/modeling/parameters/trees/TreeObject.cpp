@@ -331,8 +331,6 @@ void TreeObject::clone(const TreeObject& t){
         p->setIndex(q->getIndex());
         p->setIsTip(q->getIsTip());
         p->setName(q->getName());
-        p->setActiveCL(q->getActiveCL());
-        p->setActiveTP(q->getActiveTP());
         p->setNeedsCLUpdate(q->getNeedsCLUpdate());
         p->setNeedsTPUpdate(q->getNeedsTPUpdate());
 
@@ -362,18 +360,6 @@ void TreeObject::deleteAllNodes(){
     for (int i = 0; i < nodes.size(); i++)
         delete nodes[i];
     nodes.clear();
-}
-
-void TreeObject::flipAllCLs(){
-    for(Node* n : nodes){
-        n->flipCL();
-    }
-}
-
-void TreeObject::flipAllTPs(){
-    for(Node* n : nodes){
-        n->flipTP();
-    }
 }
 
 void TreeObject::setBranchLength(Node* p1, Node* p2, double length){

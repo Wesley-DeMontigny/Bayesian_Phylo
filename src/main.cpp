@@ -67,5 +67,5 @@ int main(int argc, char* argv[]) {
     realRun.registerEvent(&fileLogger, 10);
     
     realRun.initialize();
-    myMCMC.run(20000, &realRun);
+    myMCMC.run(10000, &realRun);
 }
