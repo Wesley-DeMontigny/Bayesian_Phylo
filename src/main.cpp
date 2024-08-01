@@ -68,4 +68,6 @@ int main(int argc, char* argv[]) {
     
     realRun.initialize();
     myMCMC.run(10000, &realRun);
+
+    std::cout << treeParam.getTree()->getNewick() << std::endl;
 }

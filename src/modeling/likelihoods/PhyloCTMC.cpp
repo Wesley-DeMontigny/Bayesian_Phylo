@@ -123,7 +123,7 @@ void PhyloCTMC::regenerate(){
             if(updateAllTPs == true || n->getNeedsTPUpdate() == true){
                 if(n != activeT->getRoot()){
                     activeTP[nIndex] ^= true;
-                    double v = activeT->getBranchLength(n, n->getAncestor());
+                    double v = activeT->getBranchLength(n);
                     transProb->set(activeTP[nIndex], nIndex, rateMatrix->P(v));
                 }
                 n->setNeedsTPUpdate(false);

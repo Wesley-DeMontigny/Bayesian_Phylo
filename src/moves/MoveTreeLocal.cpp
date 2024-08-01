@@ -42,39 +42,42 @@ double MoveTreeLocal::update(){
     Node* c = Node::chooseNodeFromSet(neighbors2);
 
     double scale = std::exp(delta * (rng.uniformRv() - 0.5));
-    double paths[3] {
-        tree->getBranchLength(u, v) * scale,
-        tree->getBranchLength(a, u) * scale,
-        tree->getBranchLength(v, c) * scale
-    };
+
+    double paths[3];
+    paths[0] = tree->getBranchLength(u) * scale;
+    paths[1] = tree->getBranchLength(a) * scale;
+    Node* b3 = nullptr;
+    if(c != v->getAncestor())
+        b3 = c;
+    else
+        b3 = v;
+    paths[2] = tree->getBranchLength(b3) * scale;
+
     double totalPath = paths[0] + paths[1] + paths[2];
 
-    std::vector<Node*> setUV = {u, v};
-    std::vector<Node*> setAC = {a, c};
+    std::vector<Node*> nodeSet = {a, b3};
     int pick = (int)(rng.uniformRv() * 2);
     double randomLoc = rng.uniformRv() * totalPath;
 
     //The pick decides the oritentation of the path
     if(randomLoc <= totalPath - paths[pick]){
-        tree->setBranchLength(setAC[pick], setUV[pick], randomLoc);
-        tree->setBranchLength(u, v, totalPath - paths[pick] - randomLoc);
-        tree->setBranchLength(setAC[pick ^ 1], setUV[pick ^ 1], paths[pick]);
+        tree->setBranchLength(nodeSet[pick], randomLoc);
+        tree->setBranchLength(u, totalPath - paths[pick] - randomLoc);
+        tree->setBranchLength(nodeSet[pick ^ 1], paths[pick]);
     }
     else{
         u->removeNeighbor(a);
         a->removeNeighbor(u);
         v->removeNeighbor(c);
         c->removeNeighbor(v);
-        tree->removeBranchLength(a, u);
-        tree->removeBranchLength(v,c);
 
         v->addNeighbor(a);
         a->addNeighbor(v);
         u->addNeighbor(c);
         c->addNeighbor(u);
-        tree->setBranchLength(setAC[pick ^ 1], setUV[pick], totalPath - randomLoc);
-        tree->setBranchLength(u, v, randomLoc - (totalPath - paths[pick]));
-        tree->setBranchLength(setAC[pick], setUV[pick ^ 1], totalPath - paths[pick]);
+        tree->setBranchLength(nodeSet[pick ^ 1], totalPath - randomLoc);
+        tree->setBranchLength(u, randomLoc - (totalPath - paths[pick]));
+        tree->setBranchLength(nodeSet[pick], totalPath - paths[pick]);
 
         //Rooting logic
         if(v->getAncestor() == c){
@@ -92,7 +95,6 @@ double MoveTreeLocal::update(){
 
     u->setNeedsTPUpdate(true);
     v->setNeedsTPUpdate(true);
-
     a->setNeedsTPUpdate(true);
     c->setNeedsTPUpdate(true);
 

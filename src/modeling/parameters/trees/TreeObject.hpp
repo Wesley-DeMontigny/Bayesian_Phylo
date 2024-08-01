@@ -23,7 +23,7 @@ class TreeObject {
         TreeObject&         operator=(const TreeObject& rhs);
         void                flipAllTPs();
         void                flipAllCLs();
-        double              getBranchLength(Node* p1, Node* p2) const;
+        double              getBranchLength(Node* n) const;
         std::vector<double*> getBranchLengths();
         std::string         getNewick() const;
         int                 getNumTaxa(){return numTaxa;}
@@ -33,15 +33,14 @@ class TreeObject {
         void                initPostOrder(void);
         void                print(void) const;
         void                print(std::string header) const;
-        void                removeBranchLength(Node* p1, Node* p2);
-        void                setBranchLength(Node* p1, Node* p2, double length);
+        void                setBranchLength(Node* n, double length);
         void                updateAll();
         void                accept();
         void                reject();
         
     private:
         Node*               addNode(void);
-        std::map<std::pair<Node*, Node*>, double> branchLengths;
+        std::map<Node*, double> branchLengths;
         void                clone(const TreeObject& t);
         void                deleteAllNodes();
         int                 getTaxonIndex(std::string token, std::vector<std::string> taxaNames);

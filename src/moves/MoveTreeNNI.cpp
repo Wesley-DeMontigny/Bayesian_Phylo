@@ -30,13 +30,9 @@ double MoveTreeNNI::update(){
     neighbors2.erase(p);//Don't select p
     Node* n2 = Node::chooseNodeFromSet(neighbors2);
 
-    double l1 = tree->getBranchLength(p, n1);
-    double l2 = tree->getBranchLength(a, n2);
-
     n1->addNeighbor(a);
     a->addNeighbor(n1);
     n1->setAncestor(a);
-    tree->setBranchLength(a, n1, l1);
     
     if(n2 != a->getAncestor()){
         n2->addNeighbor(p);
@@ -49,15 +45,12 @@ double MoveTreeNNI::update(){
         p->setAncestor(n2);
         a->setAncestor(p);
     }
-    tree->setBranchLength(p, n2, l2);
 
     //Remove old connections
     n1->removeNeighbor(p);
     p->removeNeighbor(n1);
     n2->removeNeighbor(a);
     a->removeNeighbor(n2);
-    tree->removeBranchLength(n1, p);
-    tree->removeBranchLength(n2, a);
 
     Node* q = nullptr;
     if(n2 != a->getAncestor())

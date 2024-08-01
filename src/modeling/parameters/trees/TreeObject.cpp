@@ -69,7 +69,7 @@ TreeObject::TreeObject(int nt) : numTaxa(nt) {
         {
         Node* p = postOrderSeq[i];
         if (p->getAncestor() != nullptr)
-                this->setBranchLength(p,p->getAncestor(), rng.exponentialRv(0.2));
+                this->setBranchLength(p, rng.exponentialRv(0.2));
         }
 
     // index the interior nodes (the tip nodes are indexed, above)
@@ -111,7 +111,7 @@ TreeObject::TreeObject(std::string newick, std::vector<std::string> taxaNames){
                 p->addNeighbor(newNode);
                 newNode->addNeighbor(p);
                 newNode->setAncestor(p);
-                setBranchLength(p, newNode, 0.0);
+                setBranchLength(newNode, 0.0);
             }
 
             p = newNode;
@@ -132,7 +132,7 @@ TreeObject::TreeObject(std::string newick, std::vector<std::string> taxaNames){
         else{
             if(readingBranchLength){
                 double x = atof(tok.c_str());
-                setBranchLength(p, p->getAncestor(), x);
+                setBranchLength(p, x);
             }
             else{
                 //We need to trim the white space at the beginning and end of the token
@@ -148,7 +148,7 @@ TreeObject::TreeObject(std::string newick, std::vector<std::string> taxaNames){
                 newNode->setAncestor(p);
                 newNode->setName(tok);
                 newNode->setIsTip(true);
-                setBranchLength(p, newNode, 0.0);
+                setBranchLength(newNode, 0.0);
 
                 int taxonIndex = getTaxonIndex(tok, taxaNames);
                 if(taxonIndex == -1)
@@ -282,7 +282,7 @@ TreeObject::TreeObject(double lambda, double mu, double duration){
             auto itB = birthPoints.find(p);
             auto itE = endPoints.find(p);
 
-            setBranchLength(p, p->getAncestor(), itE->second - itB->second);
+            setBranchLength(p, itE->second - itB->second);
         }
     }
 }
@@ -341,9 +341,9 @@ void TreeObject::clone(const TreeObject& t){
 
         if(q->getAncestor() != nullptr){
             Node* ancestor = this->nodes[q->getAncestor()->getOffset()];
-            double bl = t.getBranchLength(q, q->getAncestor());
+            double bl = t.getBranchLength(q);
             p->setAncestor(ancestor);
-            this->setBranchLength(p, ancestor, bl);
+            this->setBranchLength(p, bl);
         }
         else
             p->setAncestor(nullptr);
@@ -362,27 +362,17 @@ void TreeObject::deleteAllNodes(){
     nodes.clear();
 }
 
-void TreeObject::setBranchLength(Node* p1, Node* p2, double length){
-    std::pair<Node*, Node*> key;
-    if(p1 < p2)
-        key = std::make_pair(p1,p2);
-    else
-        key = std::make_pair(p2, p1);
-    std::map<std::pair<Node*, Node*>, double>::iterator it = branchLengths.find(key);
+void TreeObject::setBranchLength(Node* n, double length){
+    auto it = branchLengths.find(n);
 
     if(it == branchLengths.end())
-        branchLengths.insert(std::make_pair(key, length));
+        branchLengths.insert(std::make_pair(n, length));
     else
         it->second = length;
 }
 
-double TreeObject::getBranchLength(Node* p1, Node* p2) const{
-    std::pair<Node*, Node*> key;
-    if(p1 < p2)
-        key = std::make_pair(p1,p2);
-    else
-        key = std::make_pair(p2, p1);
-    std::map<std::pair<Node*, Node*>, double>::const_iterator it = branchLengths.find(key);
+double TreeObject::getBranchLength(Node* n) const{
+    auto it = branchLengths.find(n);
 
     if(it == branchLengths.end())
         Msg::error("Couldn't find branch length of pair");
@@ -483,15 +473,6 @@ void TreeObject::print(void) const{
     showNode(root, 0);
 }
 
-void TreeObject::removeBranchLength(Node* p1, Node* p2){
-    std::pair<Node*, Node*> key;
-    if(p1 < p2)
-        key = std::make_pair(p1,p2);
-    else
-        key = std::make_pair(p2, p1);
-    branchLengths.erase(key);
-}
-
 //Output nodes of the tree in a whitespace-indented format
 void TreeObject::showNode(Node* p, int indent) const{
 
@@ -512,7 +493,7 @@ void TreeObject::showNode(Node* p, int indent) const{
     std::cout << ") ";
 
     if(p->getAncestor() != nullptr)
-        std::cout << this->getBranchLength(p, p->getAncestor()) << " ";
+        std::cout << this->getBranchLength(p) << " ";
 
     std::cout << p->getName();
 
@@ -559,6 +540,6 @@ void TreeObject::writeNode(Node* p, std::stringstream& strm) const{
     if(!p->getIsTip())
         strm << ")";
     if(p->getAncestor() != nullptr){
-        strm << ":" << this->getBranchLength(p, p->getAncestor());
+        strm << ":" << this->getBranchLength(p);
     }
 }

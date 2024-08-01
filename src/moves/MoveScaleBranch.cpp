@@ -21,10 +21,10 @@ double MoveScaleBranch::update(){
     }
     while(p == root);
 
-    double currentV = tree->getBranchLength(p, p->getAncestor());
+    double currentV = tree->getBranchLength(p);
     double scale = std::exp(delta * (rng.uniformRv() - 0.5));
     double newV = currentV * scale;
-    tree->setBranchLength(p, p->getAncestor(), newV);
+    tree->setBranchLength(p, newV);
     p->setNeedsTPUpdate(true);
 
     Node* q = p;
