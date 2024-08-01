@@ -17,7 +17,6 @@ class TreeObject {
                             TreeObject(int nt);
                             TreeObject(Alignment* aln);
                             TreeObject(const TreeObject& t);
-                            TreeObject(double lambda, double mu, double duration);
                             TreeObject(std::string newick, std::vector<std::string> taxaNames);
                            ~TreeObject(void);
         TreeObject&         operator=(const TreeObject& rhs);

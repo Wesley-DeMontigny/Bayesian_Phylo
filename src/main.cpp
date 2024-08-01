@@ -29,9 +29,7 @@ int main(int argc, char* argv[]) {
 
     JC69Matrix rateMatrix;
 
-    TreeParameter randomTree(&aln);
-
-    TreeParameter treeParam(*randomTree.getTree());
+    TreeParameter treeParam(&aln);
     TreePrior treePrior(&treeParam);
     treePrior.setExponentialBranchPrior(&DoubleParameter(0.2));
 

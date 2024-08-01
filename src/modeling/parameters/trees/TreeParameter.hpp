@@ -7,7 +7,9 @@
 class TreeParameter : public ModelNode{
     public:
         TreeParameter(void)=delete;
-        template<typename... Args> TreeParameter(Args&&... args);
+        TreeParameter(int nt);
+        TreeParameter(Alignment* aln);
+        TreeParameter(std::string newick, std::vector<std::string> taxaNames);
         ~TreeParameter();
         TreeParameter& operator=(const TreeParameter& t);
         TreeObject* getTree(){return trees[0];}
@@ -20,12 +22,5 @@ class TreeParameter : public ModelNode{
     private:
         TreeObject* trees[2];
 };
-
-template<typename... Args>
-TreeParameter::TreeParameter(Args&&... args)
-    : trees{new TreeObject(std::forward<Args>(args)...), nullptr} {
-    trees[1] = new TreeObject(*trees[0]);
-    dirty();
-}
 
 #endif

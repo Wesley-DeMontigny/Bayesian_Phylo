@@ -2,6 +2,24 @@
 #include "core/RandomVariable.hpp"
 #include "TreeObject.hpp"
 
+TreeParameter::TreeParameter(int nt){
+    trees[0] = new TreeObject(nt);
+    trees[1] = new TreeObject(*trees[0]);
+    dirty();
+}
+
+TreeParameter::TreeParameter(Alignment* aln){
+    trees[0] = new TreeObject(aln);
+    trees[1] = new TreeObject(*trees[0]);
+    dirty();
+}
+
+TreeParameter::TreeParameter(std::string newick, std::vector<std::string> taxaNames){
+    trees[0] = new TreeObject(newick, taxaNames);
+    trees[1] = new TreeObject(*trees[0]);
+    dirty();
+}
+
 TreeParameter::~TreeParameter(){
     delete trees[0];
     delete trees[1]; 
