@@ -1,7 +1,9 @@
 #include "TreePrior.hpp"
+#include "modeling/parameters/trees/Node.hpp"
 #include "modeling/parameters/trees/TreeParameter.hpp"
 #include "modeling/parameters/trees/Node.hpp"
 #include "modeling/parameters/DoubleParameter.hpp"
+#include "core/RandomVariable.hpp"
 #include <cmath>
 #include <iostream>
 
@@ -58,12 +60,12 @@ void TreePrior::regenerate(){
         double totalLnL = 0.0;
 
         if(hasLambda){
-            std::vector<double*> values = tree->getBranchLengths();
+            std::vector<double> values = tree->getBranchLengths();
             double lambdaVal = lambda->getValue();
-            for(double* val : values){
+            for(double val : values){
                 double LnL = 0.0;
                 if(val > 0)
-                    LnL = std::log(lambdaVal * std::exp(-1 * (lambdaVal) * (*val)));
+                    LnL = std::log(lambdaVal * std::exp(-1 * (lambdaVal) * (val)));
                 else
                     LnL = -INFINITY;
                 totalLnL += LnL;
@@ -72,4 +74,20 @@ void TreePrior::regenerate(){
         
         currentPrior = totalLnL;
     }
+}
+
+void TreePrior::sample(){
+    if(lambda != nullptr){
+        RandomVariable& rng = RandomVariable::randomVariableInstance();
+        TreeObject* t = tree->getTree();
+        double lambdaVal = lambda->getValue();
+        std::vector<Node*> nodes = t->getPostOrderSeq();
+        for(Node* n : nodes){
+            if(n != t->getRoot()){
+                t->setBranchLength(n, rng.exponentialRv(lambdaVal));
+            }
+        }
+    }
+    tree->accept();
+    tree->regenerate();
 }

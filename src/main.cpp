@@ -31,7 +31,8 @@ int main(int argc, char* argv[]) {
 
     TreeParameter treeParam(&aln);
     TreePrior treePrior(&treeParam);
-    treePrior.setExponentialBranchPrior(&DoubleParameter(0.2));
+    treePrior.setExponentialBranchPrior(&DoubleParameter(20));
+    treePrior.sample();
 
     PhyloCTMC ctmc(&aln, &treeParam, &rateMatrix);
 
@@ -49,9 +50,9 @@ int main(int argc, char* argv[]) {
     EventManager burnIn;
     burnIn.registerEvent(&TuneEvent(&moveScheduler), 500);
     burnIn.registerEvent(&IterationTrackerEvent(), 10);
-
     burnIn.initialize();
-    myMCMC.run(5000, &burnIn);
+
+    myMCMC.run(10000, &burnIn);
 
     std::vector<std::pair<std::string, ModelNode*>> loggables;
     loggables.push_back(std::make_pair("Prior", &treePrior));
@@ -63,9 +64,9 @@ int main(int argc, char* argv[]) {
     realRun.registerEvent(&screenLogger, 100);
     FileLogEvent fileLogger(loggables, "C:/Users/wescd/OneDrive/Documents/Code/Bayesian_Phylo/Bayesian_Phylo/res/test_mcmc.log");
     realRun.registerEvent(&fileLogger, 10);
-    
     realRun.initialize();
-    myMCMC.run(10000, &realRun);
+
+    myMCMC.run(50000, &realRun);
 
     std::cout << treeParam.getTree()->getNewick() << std::endl;
 }

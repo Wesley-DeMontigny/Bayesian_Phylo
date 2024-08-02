@@ -70,7 +70,7 @@ void HillClimb::run(EventManager* e){
         e->call(iteration);
 
         if(iteration % 1000 == 0){
-            if(currentLnLikelihood - checkpoint < 0.5){
+            if(currentLnLikelihood - checkpoint < 0.1){
                 break;
             }
             checkpoint = currentLnLikelihood;

@@ -40,7 +40,7 @@ void TreeParameter::accept(){
     *trees[1] = *trees[0];
 }
 
-std::vector<double*> TreeParameter::getBranchLengths(){
+std::vector<double> TreeParameter::getBranchLengths(){
     return trees[0]->getBranchLengths();
 }
 

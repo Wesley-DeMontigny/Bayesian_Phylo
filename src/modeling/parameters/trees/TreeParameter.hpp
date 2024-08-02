@@ -14,7 +14,7 @@ class TreeParameter : public ModelNode{
         TreeParameter& operator=(const TreeParameter& t);
         TreeObject* getTree(){return trees[0];}
         const TreeObject* getTreeConst() const {return trees[0];}
-        std::vector<double*> getBranchLengths();
+        std::vector<double> getBranchLengths();
         void accept();
         void reject();
         void regenerate();

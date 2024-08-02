@@ -11,6 +11,7 @@ class PriorNode : public ModelNode {
         virtual void regenerate()=0;
         virtual std::string writeValue()=0;
         virtual double lnPrior()=0;
+        virtual void sample()=0;
     protected:
         double currentLnPrior;
         double oldLnPrior;

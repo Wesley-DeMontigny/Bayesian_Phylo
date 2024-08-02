@@ -17,6 +17,7 @@ class TreePrior : public PriorNode {
         void regenerate();
         void accept();
         void reject();
+        void sample();
         std::string writeValue() {return std::to_string(currentPrior);}
     protected:
         double oldPrior;

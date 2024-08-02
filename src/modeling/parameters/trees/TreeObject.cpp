@@ -270,12 +270,12 @@ double TreeObject::getBranchLength(Node* n) const{
     return it->second;
 }
 
-std::vector<double*> TreeObject::getBranchLengths(){
-    std::vector<double*> returnVec;
+std::vector<double> TreeObject::getBranchLengths(){
+    std::vector<double> returnVec;
     returnVec.reserve(branchLengths.size());
 
-    for (auto &s : branchLengths)
-        returnVec.push_back(&s.second);
+    for (auto s : branchLengths)
+        returnVec.push_back(s.second);
 
     return returnVec;
 }
