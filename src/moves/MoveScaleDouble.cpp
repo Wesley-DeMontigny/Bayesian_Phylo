@@ -1,8 +1,6 @@
 #include "MoveScaleDouble.hpp"
 #include "modeling/parameters/DoubleParameter.hpp"
-#include "modeling/parameters/trees/TreeObject.hpp"
 #include "core/RandomVariable.hpp"
-#include "modeling/parameters/trees/Node.hpp"
 #include <iostream>
 #include <cmath>
 

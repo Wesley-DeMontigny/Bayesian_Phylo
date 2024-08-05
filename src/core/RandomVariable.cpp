@@ -95,10 +95,10 @@ Generate using the Marsaglia and Tsang (2000) method:
 (5) If log(U) 0.5*xÃ2 d*(1-v log(v)) return d*v. 
 (6) Go to step 2.
 */
-double RandomVariable::gammaRv(double shape, double scale) {
+double RandomVariable::gammaRv(double shape, double rate) {
     if(shape < 1.0){
         double u = uniformRv();
-        return gammaRv(1.0 + shape, scale) * std::pow(u, 1.0 / shape);
+        return gammaRv(1.0 + shape, rate) * std::pow(u, 1.0 / shape);
     }
 
     double d = shape - 1.0 / 3.0;
@@ -112,10 +112,10 @@ double RandomVariable::gammaRv(double shape, double scale) {
             double x2 = x * x;
             double u = uniformRv();
             if (u < 1.0 - 0.0331 * x2 * x2) {
-                return scale * d * v;
+                return  (d * v)/rate;
             }
             if (std::log(u) < 0.5 * x2 + d * (1.0 - v + std::log(v))) {
-                return scale * d * v;
+                return (d * v)/rate;
             }
         }
     }

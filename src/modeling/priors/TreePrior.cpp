@@ -1,13 +1,12 @@
 #include "TreePrior.hpp"
 #include "modeling/parameters/trees/Node.hpp"
 #include "modeling/parameters/trees/TreeParameter.hpp"
-#include "modeling/parameters/trees/Node.hpp"
 #include "modeling/parameters/DoubleParameter.hpp"
 #include "core/RandomVariable.hpp"
 #include <cmath>
 #include <iostream>
 
-TreePrior::TreePrior(TreeParameter* t) : currentPrior(0.0), oldPrior(0.0), lambda(nullptr), tree(t) {
+TreePrior::TreePrior(TreeParameter* t) : currentLnPrior(0.0), oldLnPrior(0.0), lambda(nullptr), tree(t) {
     this->dirty();
 }
 
@@ -72,7 +71,7 @@ void TreePrior::regenerate(){
             }
         }
         
-        currentPrior = totalLnL;
+        currentLnPrior = totalLnL;
     }
 }
 

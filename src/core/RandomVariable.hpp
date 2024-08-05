@@ -30,7 +30,7 @@ class RandomVariable {
                                     }
         double                  uniformRv(void);
         double                  exponentialRv(double lamda);
-        double                  gammaRv(double shape, double scale);
+        double                  gammaRv(double shape, double rate);
         double                  normalRv(double mu, double sigma);
 
     private:

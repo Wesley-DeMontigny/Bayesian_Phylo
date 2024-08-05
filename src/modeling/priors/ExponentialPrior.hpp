@@ -1,18 +1,15 @@
-#ifndef TREE_PRIOR_HPP
-#define TREE_PRIOR_HPP
+#ifndef EXPONENTIAL_PRIOR_HPP
+#define EXPONENTIAL_PRIOR_HPP
 #include "PriorNode.hpp"
 #include <vector>
 #include <set>
 
-class TreeParameter;
 class DoubleParameter;
 
-class TreePrior : public PriorNode {
+class ExponentialPrior : public PriorNode {
     public:
-        TreePrior(void)=delete;
-        TreePrior(TreeParameter* t);
-        void setExponentialBranchPrior(DoubleParameter* l);
-        void addMonophyleticConstraint(std::set<int> taxa, double strength);
+        ExponentialPrior(void)=delete;
+        ExponentialPrior(DoubleParameter* l, DoubleParameter* p);
         double lnPrior() {return currentLnPrior;}
         void regenerate();
         void accept();
@@ -23,8 +20,7 @@ class TreePrior : public PriorNode {
         double oldLnPrior;
         double currentLnPrior;
         DoubleParameter* lambda;
-        TreeParameter* tree;
-        std::vector<std::set<int>> monophyleticContraints;
+        DoubleParameter* param;
 };
 
 #endif

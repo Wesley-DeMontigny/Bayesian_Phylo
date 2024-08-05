@@ -4,7 +4,7 @@
 #include "moves/MoveTreeNNI.hpp"
 #include "moves/MoveScaleBranch.hpp"
 #include "moves/MoveTreeLocal.hpp"
-#include "moves/MoveScaleDouble.hpp"
+#include "moves/MoveSlideDouble.hpp"
 #include "events/EventManager.hpp"
 #include "events/TuneEvent.hpp"
 #include "events/FileLogEvent.hpp"
@@ -18,6 +18,7 @@
 #include "modeling/PosteriorNode.hpp"
 #include "modeling/analysis/Mcmc.hpp"
 #include "modeling/analysis/PerturbedHillClimb.hpp"
+#include "modeling/priors/GammaPrior.hpp"
 
 
 int main(int argc, char* argv[]) {
@@ -29,9 +30,16 @@ int main(int argc, char* argv[]) {
 
     JC69Matrix rateMatrix;
 
+    DoubleParameter lambda(20.0);
+    GammaPrior lambdaPrior(&DoubleParameter(12.0), &DoubleParameter(0.65), &lambda);
+    lambdaPrior.sample();
+
+    MoveSlideDouble lambdaMove(&lambda, 1.0);
+    moveScheduler.registerMove(&lambdaMove);
+
     TreeParameter treeParam(&aln);
     TreePrior treePrior(&treeParam);
-    treePrior.setExponentialBranchPrior(&DoubleParameter(20));
+    treePrior.setExponentialBranchPrior(&lambda);
     treePrior.sample();
 
     PhyloCTMC ctmc(&aln, &treeParam, &rateMatrix);
@@ -43,7 +51,7 @@ int main(int argc, char* argv[]) {
     moveScheduler.registerMove(&scaleBranchMove);
     moveScheduler.registerMove(&localMove);
 
-    PosteriorNode posterior(&ctmc, {&treePrior});
+    PosteriorNode posterior(&ctmc, {&treePrior, &lambdaPrior});
 
     Mcmc myMCMC(&posterior, &moveScheduler);
 
@@ -52,12 +60,13 @@ int main(int argc, char* argv[]) {
     burnIn.registerEvent(&IterationTrackerEvent(), 10);
     burnIn.initialize();
 
-    myMCMC.run(10000, &burnIn);
+    myMCMC.run(5000, &burnIn);
 
     std::vector<std::pair<std::string, ModelNode*>> loggables;
     loggables.push_back(std::make_pair("Prior", &treePrior));
     loggables.push_back(std::make_pair("Likelihood", &ctmc));
     loggables.push_back(std::make_pair("Posterior", &posterior));
+    loggables.push_back(std::make_pair("Lambda", &lambda));
 
     EventManager realRun;
     ScreenLogEvent screenLogger(loggables);
@@ -66,7 +75,7 @@ int main(int argc, char* argv[]) {
     realRun.registerEvent(&fileLogger, 10);
     realRun.initialize();
 
-    myMCMC.run(50000, &realRun);
+    myMCMC.run(100000, &realRun);
 
     std::cout << treeParam.getTree()->getNewick() << std::endl;
 }
