@@ -104,7 +104,8 @@ double MoveTreeLocal::update(){
         q = u;
 
     do{
-        q->setNeedsCLUpdate(true);
+        if(q->getIsTip() == false)
+            q->setNeedsCLUpdate(true);
         q = q->getAncestor();
     }
     while(q != root);
@@ -118,7 +119,6 @@ double MoveTreeLocal::update(){
 }
 
 void MoveTreeLocal::tune(){
-    //Something about this causes the branch lengths to go to 0
     double rate = (double)acceptedSinceTune/(double)countSinceTune;
 
     if ( rate > 0.44 ) {
