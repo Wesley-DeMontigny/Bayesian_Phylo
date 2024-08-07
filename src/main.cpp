@@ -3,7 +3,9 @@
 #include "moves/MoveScheduler.hpp"
 #include "moves/MoveTreeNNI.hpp"
 #include "moves/MoveScaleBranch.hpp"
+#include "moves/Move.hpp"
 #include "moves/MoveTreeLocal.hpp"
+#include "moves/MoveScaleClade.hpp"
 #include "moves/MoveSlideDouble.hpp"
 #include "events/EventManager.hpp"
 #include "events/TuneEvent.hpp"
@@ -31,11 +33,6 @@ int main(int argc, char* argv[]) {
     JC69Matrix rateMatrix;
 
     DoubleParameter lambda(20.0);
-    GammaPrior lambdaPrior(&DoubleParameter(12.0), &DoubleParameter(0.65), &lambda);
-    lambdaPrior.sample();
-
-    MoveSlideDouble lambdaMove(&lambda, 1.0);
-    moveScheduler.registerMove(&lambdaMove);
 
     TreeParameter treeParam(&aln);
     TreePrior treePrior(&treeParam);
@@ -45,13 +42,13 @@ int main(int argc, char* argv[]) {
     PhyloCTMC ctmc(&aln, &treeParam, &rateMatrix);
 
     MoveTreeNNI nniMove(&treeParam);
-    MoveScaleBranch scaleBranchMove(&treeParam);
+    MoveScaleBranch scaleBranch(&treeParam);
     MoveTreeLocal localMove(&treeParam);
-    moveScheduler.registerMove(&nniMove);
-    moveScheduler.registerMove(&scaleBranchMove);
-    moveScheduler.registerMove(&localMove);
+    moveScheduler.registerMove(&nniMove, 10);
+    moveScheduler.registerMove(&scaleBranch, 3.0);
+    moveScheduler.registerMove(&localMove, 5.0);
 
-    PosteriorNode posterior(&ctmc, {&treePrior, &lambdaPrior});
+    PosteriorNode posterior(&ctmc, {&treePrior});
 
     Mcmc myMCMC(&posterior, &moveScheduler);
 
@@ -66,7 +63,6 @@ int main(int argc, char* argv[]) {
     loggables.push_back(std::make_pair("Prior", &treePrior));
     loggables.push_back(std::make_pair("Likelihood", &ctmc));
     loggables.push_back(std::make_pair("Posterior", &posterior));
-    loggables.push_back(std::make_pair("Lambda", &lambda));
 
     EventManager realRun;
     ScreenLogEvent screenLogger(loggables);
@@ -75,7 +71,7 @@ int main(int argc, char* argv[]) {
     realRun.registerEvent(&fileLogger, 10);
     realRun.initialize();
 
-    myMCMC.run(100000, &realRun);
+    myMCMC.run(30000, &realRun);
 
     std::cout << treeParam.getTree()->getNewick() << std::endl;
 }
