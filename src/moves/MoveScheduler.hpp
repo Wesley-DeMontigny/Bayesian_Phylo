@@ -9,15 +9,17 @@ class Move;
 class MoveScheduler {
     public:
         MoveScheduler(void);
-        MoveScheduler(std::vector<Move*> moves);
+        MoveScheduler(std::vector<Move*> moves, std::vector<double> w);
         Move* getMove();
-        void registerMove(Move* m);
+        void registerMove(Move* m, double weight);
         //void registerMove(AbstractMove* m, int w);
         void tune();
         void clearRecord();
     private:
-        //std::vector<int> weights;
         std::vector<Move*> moveHandlers;
+        double totalWeight;
+        std::vector<double> weights;
+
 };
 
 #endif
