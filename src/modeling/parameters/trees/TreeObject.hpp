@@ -30,6 +30,7 @@ class TreeObject {
         Node*               getRoot() {return root;}
         std::vector<Node*>  getTips();
         void                initPostOrder(void);
+        void                passDown(Node* p, std::vector<Node*>& vec);
         void                print(void) const;
         void                print(std::string header) const;
         void                setBranchLength(Node* n, double length);
@@ -46,7 +47,6 @@ class TreeObject {
         std::vector<Node*>  nodes;
         int                 numTaxa;
         std::vector<std::string> parseNewickString(std::string newick);
-        void                passDown(Node* p, Node* fromNode);
         std::vector<Node*>  postOrderSeq;
         Node*               root;
         void                showNode(Node* p, int indent) const;

@@ -311,7 +311,7 @@ int TreeObject::getTaxonIndex(std::string token, std::vector<std::string> taxaNa
 
 void TreeObject::initPostOrder(void) {
     postOrderSeq.clear();
-    passDown(root, root);
+    passDown(root, postOrderSeq);
 }
 
 std::vector<std::string> TreeObject::parseNewickString(std::string newick){
@@ -335,23 +335,19 @@ std::vector<std::string> TreeObject::parseNewickString(std::string newick){
     return tokens;
 }
 
-void TreeObject::passDown(Node* p, Node* fromNode) {
+void TreeObject::passDown(Node* p, std::vector<Node*>& vec) {
 
     if(p == nullptr)
         return;
     
     std::set<Node*>& pNeighbors = p->getNeighbors();
 
-    for(Node* n : pNeighbors)
-        {
+    for(Node* n : pNeighbors){
         if(n != p->getAncestor())
-            passDown(n, p);
-        }
+            passDown(n, vec);
+    }
 
-    if(p != fromNode)
-        p->setAncestor(fromNode);
-
-    postOrderSeq.push_back(p);
+    vec.push_back(p);
 }
 
 void TreeObject::print(std::string header) const{
