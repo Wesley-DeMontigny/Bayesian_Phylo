@@ -8,6 +8,7 @@ class ConditionalLikelihood{
     public:
         ConditionalLikelihood(void) = delete;
         ConditionalLikelihood(Alignment* aln);
+        ConditionalLikelihood(int numTaxa);
         ~ConditionalLikelihood();
         double* operator()(int n, int s);
         double* operator[](int n);

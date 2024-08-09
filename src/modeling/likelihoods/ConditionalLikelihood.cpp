@@ -35,6 +35,21 @@ ConditionalLikelihood::ConditionalLikelihood(Alignment* aln) : numNodes(aln->get
     }
 }
 
+ConditionalLikelihood::ConditionalLikelihood(int numTaxa, int s) : numNodes(numTaxa * 2 - 1), stateSpace(s) {
+    int width = numNodes*numChar*stateSpace;
+    condLikelihoods[0] = new double[2 * width];
+    condLikelihoods[1] = condLikelihoods[0] + (width);
+
+    activeCLs = new int[numNodes];
+    for(int i = 0; i < numNodes; i++)
+        activeCLs[i] = 0;
+
+    for(int i = 0; i < width; i++){
+        condLikelihoods[0][i] = 0.0;
+        condLikelihoods[1][i] = 0.0;
+    }
+}
+
 ConditionalLikelihood::~ConditionalLikelihood(){
     delete [] condLikelihoods[0];
     delete activeCLs;
